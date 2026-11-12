@@ -1,0 +1,19 @@
+import assert from 'node:assert/strict';
+const elements=new Map(),events=new Map(),frames=[];
+const context=new Proxy({createRadialGradient:()=>({addColorStop(){}})},{get:(o,k)=>o[k]??(()=>{})});
+function element(id){if(elements.has(id))return elements.get(id);const e={id,width:0,height:0,style:{},dataset:{},disabled:false,checked:true,textContent:'',innerHTML:'',classList:{values:new Set(['labView','dialogOverlay','toast','supplyNote'].includes(id)?['hidden']:[]),add(x){this.values.add(x)},remove(x){this.values.delete(x)},contains(x){return this.values.has(x)},toggle(x,b){if(b===undefined)b=!this.contains(x);b?this.add(x):this.remove(x)}},getContext:()=>context,getBoundingClientRect:()=>({width:900,height:610,left:0,top:0}),setAttribute(){},setPointerCapture(){},focus(){document.activeElement=e},addEventListener(n,f){events.set(`${id}:${n}`,f)},querySelector(){return element('fakeFocus')},querySelectorAll(){return [element('fakeFocus')]}};elements.set(id,e);return e}
+globalThis.document={getElementById:element,activeElement:null,hidden:false,addEventListener(n,f){events.set(`document:${n}`,f)}};
+globalThis.window={addEventListener(n,f){events.set(`window:${n}`,f)}};globalThis.requestAnimationFrame=f=>frames.push(f);globalThis.devicePixelRatio=1;
+const {run}=await import('../dist/app.mjs');
+let clock=performance.now();function tick(){clock+=50;frames.shift()(clock)}
+function click(id){assert.equal(element(id).disabled,false,id+' is disabled');element(id).onclick()}
+function emit(id,type,event){events.get(`${id}:${type}`)(event)}
+function target(dataset){return {dataset,closest:()=>({dataset})}}
+function add(id){emit('materialCards','click',{target:target({add:id})})}
+function select(id){emit('recipeCards','click',{target:target({recipe:id})})}
+tick();click('start');tick();assert.equal(run.state,'playing');assert.equal(element('gunName').textContent,'普通枪');click('pause');assert.equal(run.state,'paused');click('resume');assert.equal(run.state,'playing');
+click('openLog');assert.equal(run.state,'paused');click('cancelDialog');assert.equal(run.state,'playing');run.waveTime=59.99;tick();assert.equal(run.state,'lab');assert.equal(element('labView').classList.contains('hidden'),false);assert.equal(element('nextWave').disabled,true);
+add('water');emit('furnace','drop',{preventDefault(){},dataTransfer:{getData:()=>JSON.stringify({id:'water',from:'inventory'})}});add('hydrogen');const total=run.lab.inventory.water+run.lab.furnace.water;click('craft');assert.equal(run.lab.gun.type,'water');assert.equal(run.lab.inventory.water,total-1);assert.equal(run.lab.furnace.hydrogen,0);add('water');click('craft');assert.equal(run.lab.gun.level,2);
+select('flame');add('hydrogen');add('hydrogen');add('oxygen');click('craft');assert.equal(element('dialogOverlay').classList.contains('hidden'),false);assert.equal(run.lab.gun.type,'water');click('cancelDialog');click('craft');click('confirmReplace');assert.equal(run.lab.gun.type,'flame');assert.equal(run.lab.gun.level,1);
+add('oxygen');click('nextWave');assert.equal(run.wave,2);assert.equal(run.lab.furnace.oxygen,0);emit('window','blur',{});assert.equal(run.state,'paused');click('resume');run.waveTime=59.99;tick();assert.equal(run.state,'won');assert.match(element('screenCard').innerHTML,/经得起考验/);click('restart');assert.equal(run.wave,1);assert.equal(run.lab.gun.type,'normal');
+console.log('UI smoke PASS: start, Canvas calls, pause/log, lab click+drop, leftovers, same-family upgrade, replacement cancel/confirm, wave two, blur, result and restart. Not a browser/pixel test.');

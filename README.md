@@ -1,41 +1,40 @@
-# Valence
+# Valence · 链式反应
 
-跨 session 接手仓库。先读 [HANDOFF.md](HANDOFF.md)，了解已完成工作、验证范围与尚缺的上下文。
+化学题材生存游戏：战斗收集物质，波间查看配方、拖拽投料，改装枪械后进入下一波。
 
-当前包含两份**不同成熟度**的内容：① 已完成的网页版生存游戏 Demo《土豆突围》；② **化学 Roguelite 游戏 VALENCE 的设计文档**（尚未开发/验证）。不要把前者当成后者已经实现。详情见 [VALENCE GDD v0.1](docs/VALENCE_GDD_v0.1_Codex.md)。
+## 当前可玩原型
 
-## VALENCE 化学游戏设计
+[打开 VALENCE 两波试玩](https://valence-chain-lab.goodcamel13.chatgpt.site)（当前为原账号私有访问）。
 
-- [游戏设计与 Codex MVP 开发规格（GDD v0.1）](docs/VALENCE_GDD_v0.1_Codex.md)
-- 玩法：收集原子 → 合成分子装备 → 在战斗中触发化学反应；首次原型只支持 H/O/C 和六种分子。
-- 当前状态：**设计已保存，化学原型尚未实现**。新 session 先阅读 [HANDOFF.md](HANDOFF.md)，不要把 GDD 中的建议引擎当作既定决策。
-
-## 已有 Demo
-
-[打开《土豆突围》](https://potato-survivors-ember.goodcamel13.chatgpt.site)（Sites 当前为原账号私有访问）。
-
-源码位于 [demos/potato-survivors](demos/potato-survivors)。无运行时 JS 依赖，无需安装包或构建。
+源码：[prototypes/valence-chain-lab](prototypes/valence-chain-lab)。普通枪开局，两波各60秒，中间一次不限时实验室；可制作水枪或氢燃烧枪，同系增强、异系替换并清零，原型最高Lv.5。
 
 ```bash
-cd demos/potato-survivors
+cd prototypes/valence-chain-lab
 npm run dev
-```
-
-浏览器打开 `http://localhost:3000`。需要 Node.js 20+（测试）与 Python 3（本地静态服务器）。也可以用任意静态服务器提供 `dist/`。
-
-```bash
+# http://localhost:3000
 npm test
 npm run check
 ```
 
-玩法：WASD／方向键移动，自动攻击，拾取经验后升级三选一；坚持 180 秒获胜。ESC 暂停，手机有触屏摇杆。
+无 JS 依赖、无需构建。测试用 Node.js 20+，本地静态服务器用 Python 3。WASD/方向键移动，自动射击，ESC暂停；波间可拖拽或点击物质投料。
 
-## 接手入口
+模型、镜头、DOM/canvas流程检查与语法检查已通过；真实浏览器布局、原生拖拽和实体触屏尚未验证。详见 [验证记录](prototypes/valence-chain-lab/docs/verification.md)。
 
-- [交接说明与当前状态](HANDOFF.md)
-- [协作约定](AGENTS.md)
-- [Demo 文件说明](demos/potato-survivors/README.md)
-- [原设计记录](demos/potato-survivors/docs/superpowers/specs/2026-11-12-potato-design.md)
-- [原实现记录](demos/potato-survivors/docs/superpowers/plans/2026-11-12-potato.md)
+## 最新规则与设计
 
-本 GitHub 仓库是保存和继续开发的来源，目前未配置自动部署；推送这里不会自动更新现有 Sites 网页。
+- [当前短闭环规格](prototypes/valence-chain-lab/docs/superpowers/specs/2026-11-12-valence-short-loop.md)：本轮用户确认的范围。
+- [HANDOFF.md](HANDOFF.md)：接手先读，含版本、限制和下一步。
+- [AGENTS.md](AGENTS.md)：协作约定。
+- [早期 GDD v0.1](docs/VALENCE_GDD_v0.1_Codex.md)：保留为历史设计；其中原子资源、六分子、多槽、电弧开局和十分钟/Boss不属于当前两波原型。
+
+当前材料为水、氢气、氧气“物质卡”。水枪装填属于改装，不称为化学反应；氢燃烧试验显示配平的 `2H₂ + O₂ → 2H₂O`，需要炉内点火。氧气是氧化剂，环境空气也含氧。枪械升级、份数、持续灼烧和不限弹药均为游戏抽象。
+
+## 独立保留的土豆 Demo
+
+[试玩《土豆突围》](https://potato-survivors-ember.goodcamel13.chatgpt.site) · [源码](demos/potato-survivors)
+
+原 Demo 保持不变，本轮也重跑了其测试与语法检查。
+
+## 部署
+
+GitHub用于保存和继续开发，尚未配置自动部署。两个原型各自保留独立的 `.openai/hosting.json`；后续发布以对应子目录为项目根目录，复用各自Site，不混用ID。推送GitHub不会自动更新线上网站。
