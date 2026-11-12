@@ -1,7 +1,7 @@
 // Deterministic, presentation-only geometry. Damage lives in model.mjs.
 export function projectileVisual(b,time){
  const kind=b.type||'normal',angle=b.angle??Math.atan2(b.vy||0,b.vx||1);let x=b.originX??b.x-(b.vx||0)*.09,y=b.originY??b.y-(b.vy||0)*.09;
- let length=b.visual==='cone'?b.length:Math.hypot(b.x-x,b.y-y);if(kind==='normal'){length=Math.min(16,length);x=b.x-Math.cos(angle)*length;y=b.y-Math.sin(angle)*length}
+ let length=b.visual==='cone'?b.length:Math.hypot(b.x-x,b.y-y);if(kind==='water'){length=Math.min(36,length);x=b.x-Math.cos(angle)*length;y=b.y-Math.sin(angle)*length}if(kind==='normal'){length=Math.min(16,length);x=b.x-Math.cos(angle)*length;y=b.y-Math.sin(angle)*length}
  const phase=time*24+x*.03+y*.02,width=kind==='flame'?(b.visual==='cone'?Math.tan(b.halfAngle)*length*2:32):kind==='water'?9:4;
  const droplets=kind==='water'?Array.from({length:9},(_,i)=>({x:((i/9+time*2.4)%1)*length,y:Math.sin(phase+i*2)*3,r:1.3+i%3*.4})):[];
  const tongues=kind==='flame'?Array.from({length:9},(_,i)=>{let u=.2+i/11;return {x:length*u,y:Math.sin(phase+i*2.7)*width*u*.32,length:12+Math.sin(phase*.8+i)*6+i*1.2,width:3+i*.5}}):[];
@@ -32,5 +32,22 @@ export function drawProjectile(c,b,time){const v=projectileVisual(b,time);if(v.l
   // A bright pulsing nozzle joins the plume to the weapon.
   c.beginPath();c.ellipse(28,0,18+Math.sin(v.phase)*3,5,0,0,Math.PI*2);c.fillStyle='#edfbff';c.fill();c.restore();
  }else{c.beginPath();c.moveTo(0,0);c.lineTo(v.length,0);c.strokeStyle='#e9ddb4';c.lineWidth=4;c.stroke()}
+ c.restore();
+}
+
+// Trace current fluid positions, never a fixed historical muzzle-to-head tether.
+export function waterFlowSegments(particles,muzzle=null){
+ const points=[...particles].reverse(),segments=[];if(muzzle&&points.length&&points[0].streamId===muzzle.streamId&&Math.hypot(points[0].x-muzzle.x,points[0].y-muzzle.y)<48)points.unshift(muzzle);
+ for(const point of points){let line=segments[segments.length-1],last=line?.[line.length-1];if(!last||last.streamId!==point.streamId||Math.hypot(point.x-last.x,point.y-last.y)>48){line=[];segments.push(line)}line.push(point)}
+ return segments;
+}
+export function drawWaterFlow(c,particles,muzzle,time,impacts=[]){
+ c.save();c.lineCap='round';c.lineJoin='round';
+ for(const line of waterFlowSegments(particles,muzzle)){
+  if(line.length<2)continue;const path=()=>{c.beginPath();c.moveTo(line[0].x,line[0].y);for(let i=1;i<line.length-1;i++){const a=line[i],b=line[i+1];c.quadraticCurveTo(a.x,a.y,(a.x+b.x)/2,(a.y+b.y)/2)}const end=line[line.length-1];c.lineTo(end.x,end.y)};
+  path();c.strokeStyle='#36bce644';c.lineWidth=15;c.stroke();path();c.strokeStyle='#65d4edbb';c.lineWidth=8;c.stroke();path();c.strokeStyle='#d9fbffbb';c.lineWidth=2.2;c.stroke();
+  for(let i=1;i<line.length;i+=3){const p=line[i],prev=line[i-1],angle=Math.atan2(p.y-prev.y,p.x-prev.x);c.save();c.translate(p.x,p.y);c.rotate(angle);c.beginPath();c.ellipse(0,Math.sin(time*20+i)*1.5,3.5,1.3,0,0,Math.PI*2);c.fillStyle='#edffffcc';c.fill();c.restore()}
+ }
+ for(let i=0;i<impacts.length;i++){const p=impacts[i],radius=3+(1-p.life/.16)*12;c.globalAlpha=Math.max(0,p.life/.16);c.strokeStyle='#bdefff';c.lineWidth=1.5;for(let j=0;j<5;j++){const a=j*Math.PI*2/5+i;c.beginPath();c.moveTo(p.x+Math.cos(a)*3,p.y+Math.sin(a)*3);c.lineTo(p.x+Math.cos(a)*radius,p.y+Math.sin(a)*radius);c.stroke()}}
  c.restore();
 }

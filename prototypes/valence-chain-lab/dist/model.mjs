@@ -14,7 +14,7 @@ export class Lab{
 }
 export class Run{
  constructor(random=Math.random){this.random=random;this.dropMode='standard';this.startingGun='water';this.reset()}
- reset(){Object.assign(this,{lab:new Lab(),abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],weaponEffects:[],enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0})}
+ reset(){Object.assign(this,{lab:new Lab(),abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],weaponEffects:[],waterParticles:[],waterImpacts:[],waterEmissionCarry:0,waterStreamId:0,waterNextId:1,waterEmitting:false,waterMuzzle:null,waterLastAngle:0,enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0})}
  get needed(){return 8+(this.level-1)*5}
  get stats(){return gunStats(this.lab.gun,this.abilities)}
  setDropMode(mode){if(this.state!=='menu'||!Object.hasOwn(DROP_RATES,mode))return false;this.dropMode=mode;return true}
@@ -49,11 +49,27 @@ export class Run{
   }
   this.hazards=this.hazards.filter(h=>h.elapsed<h.life);
  }
- endWave(){for(const d of this.drops)this.collect(d);this.drops=[];this.enemies=[];this.hazards=[];this.weaponEffects=[];this.bullets=[];this.particles=[];this.texts=[];if(this.wave===2){this.state='won';return}const minimum=this.dropMode==='high'?{water:4,hydrogen:6,oxygen:3}:{water:1,hydrogen:2,oxygen:1};for(const id of Object.keys(minimum)){this.supply[id]=Math.max(0,minimum[id]-this.lab.inventory[id]);this.lab.inventory[id]+=this.supply[id]}this.state='lab';this.checkUpgrade()}
+ updateWaterFlow(dt,previous,stats,hasTarget,bounds){
+  for(const impact of this.waterImpacts)impact.life-=dt;this.waterImpacts=this.waterImpacts.filter(p=>p.life>0);
+  const advance=(p,time)=>{const x=p.x,y=p.y,step=Math.min(600*time,p.maxDistance-p.travelled);p.x+=p.vx/600*step;p.y+=p.vy/600*step;p.travelled+=step;p.age+=time;
+   for(const enemy of this.enemies){if(enemy.hp<=0||!visibleInCombat(enemy,bounds))continue;const dx=p.x-x,dy=p.y-y,t=Math.max(0,Math.min(1,((enemy.x-x)*dx+(enemy.y-y)*dy)/(dx*dx+dy*dy||1)));if(Math.hypot(enemy.x-(x+dx*t),enemy.y-(y+dy*t))<enemy.r+4){this.waterImpacts.push({x:x+dx*t,y:y+dy*t,life:.16});return false}}
+   return p.travelled<p.maxDistance&&p.x>=bounds.left&&p.x<=bounds.right&&p.y>=bounds.top&&p.y<=bounds.bottom;
+  };
+  this.waterParticles=this.waterParticles.filter(p=>advance(p,dt));
+  const emit=this.lab.gun.type==='water'&&hasTarget;
+  if(!emit){this.waterEmitting=false;this.waterEmissionCarry=0;this.waterMuzzle=null;this.waterImpacts=this.waterImpacts.slice(-12);return}
+  const turn=Math.abs(Math.atan2(Math.sin(this.angle-this.waterLastAngle),Math.cos(this.angle-this.waterLastAngle)));
+  if(!this.waterEmitting||turn>.65){this.waterStreamId++;this.waterEmissionCarry=0}this.waterEmitting=true;this.waterLastAngle=this.angle;
+  const vx=Math.cos(this.angle)*600,vy=Math.sin(this.angle)*600;this.waterMuzzle={x:this.x+vx/600*22,y:this.y+vy/600*22,streamId:this.waterStreamId};this.waterEmissionCarry+=dt;
+  while(this.waterEmissionCarry>=1/60){this.waterEmissionCarry-=1/60;const age=this.waterEmissionCarry,t=dt?1-age/dt:1;const p={id:this.waterNextId++,streamId:this.waterStreamId,x:previous.x+(this.x-previous.x)*t+vx/600*22,y:previous.y+(this.y-previous.y)*t+vy/600*22,vx,vy,age:0,travelled:0,maxDistance:stats.range-22};if(advance(p,age))this.waterParticles.push(p)}
+  this.waterParticles=this.waterParticles.slice(-100);this.waterImpacts=this.waterImpacts.slice(-12);
+ }
+ endWave(){for(const d of this.drops)this.collect(d);this.drops=[];this.enemies=[];this.hazards=[];this.weaponEffects=[];this.waterParticles=[];this.waterImpacts=[];this.waterEmitting=false;this.waterMuzzle=null;this.bullets=[];this.particles=[];this.texts=[];if(this.wave===2){this.state='won';return}const minimum=this.dropMode==='high'?{water:4,hydrogen:6,oxygen:3}:{water:1,hydrogen:2,oxygen:1};for(const id of Object.keys(minimum)){this.supply[id]=Math.max(0,minimum[id]-this.lab.inventory[id]);this.lab.inventory[id]+=this.supply[id]}this.state='lab';this.checkUpgrade()}
  step(dt,input={}){
   if(this.state!=='playing')return;dt=Math.min(.1,Math.max(0,dt));this.events=[];if(this.hp<=0){this.state='dead';return}
   this.elapsed+=dt;this.waveTime=Math.min(60,this.waveTime+dt);if(this.waveTime>=60-1e-8&&(this.wave===1||this.bossDefeated)){this.endWave();return}
   this.hp=Math.min(this.abilities.maxHp,this.hp+this.abilities.regen*dt);for(const effect of this.weaponEffects)effect.life-=dt;this.weaponEffects=this.weaponEffects.filter(e=>e.life>0);
+  const previousPlayer={x:this.x,y:this.y};
   let ix=input.x||0,iy=input.y||0,n=Math.hypot(ix,iy);if(n>1){ix/=n;iy/=n}this.x=Math.max(28,Math.min(1172,this.x+ix*this.abilities.speed*dt));this.y=Math.max(28,Math.min(772,this.y+iy*this.abilities.speed*dt));
   const viewport=input.viewport||{width:1200,height:800},bounds=combatBounds(viewport.width,viewport.height,this.x,this.y);
   this.inv=Math.max(0,this.inv-dt);this.spawn-=dt;this.shot-=dt;
@@ -74,6 +90,7 @@ export class Run{
   }
   for(const b of this.bullets){let ox=b.x,oy=b.y;const speed=Math.hypot(b.vx,b.vy),travel=Math.min(speed*dt,b.remaining??Infinity),fraction=travel/(speed*dt||1);b.x+=b.vx*dt*fraction;b.y+=b.vy*dt*fraction;if(b.remaining!==undefined)b.remaining-=travel;b.life-=dt;for(const e of this.enemies){let dx=b.x-ox,dy=b.y-oy,t=Math.max(0,Math.min(1,((e.x-ox)*dx+(e.y-oy)*dy)/(dx*dx+dy*dy||1)));if(e.hp>0&&visibleInCombat(e,bounds)&&b.life>0&&Math.hypot(e.x-(ox+t*dx),e.y-(oy+t*dy))<e.r+6){const critical=b.stats.crit>0&&this.random()<b.stats.crit;this.hit(e,b.stats.damage*(critical?2:1));if(e.hp>0&&b.type==='flame'){e.burn=b.stats.burnTime;e.burnDps=b.stats.burnDps;this.burnHits++}this.burst(b.x,b.y,b.type==='water'?'#77d9f5':b.type==='flame'?'#aebcff':'#e4d8a6',6);b.life=0;break}}if(b.remaining<=0)b.life=0}
   this.enemies=this.enemies.filter(e=>e.hp>0);this.bullets=this.bullets.filter(b=>b.life>0&&b.x>=bounds.left&&b.x<=bounds.right&&b.y>=bounds.top&&b.y<=bounds.bottom);
+  this.updateWaterFlow(dt,previousPlayer,stats,targets.some(e=>e.hp>0),bounds);
   this.updateHazards(dt);
   this.drops=this.drops.filter(drop=>{let dx=this.x-drop.x,dy=this.y-drop.y,n=Math.hypot(dx,dy);if(n<this.abilities.magnet){let s=Math.min(n,460*dt);drop.x+=dx/(n||1)*s;drop.y+=dy/(n||1)*s}if(n<24){this.collect(drop);return false}return true});
   for(const p of this.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}this.particles=this.particles.filter(p=>p.life>0).slice(-350);for(const t of this.texts){t.y-=27*dt;t.life-=dt}this.texts=this.texts.filter(t=>t.life>0).slice(-90);if(this.hp<=0)this.state='dead';else this.checkUpgrade();
