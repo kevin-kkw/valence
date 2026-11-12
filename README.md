@@ -2,7 +2,13 @@
 
 跨 session 接手仓库。先读 [HANDOFF.md](HANDOFF.md)，了解已完成工作、验证范围与尚缺的上下文。
 
-当前保存了一个完整可运行的网页版生存游戏 Demo《土豆突围》。用户提到的**化学游戏**来自另一个 ChatGPT 对话，其具体设计尚未带入本仓库；不要把这里的土豆游戏当成已经确认的化学游戏方案。
+当前包含两份**不同成熟度**的内容：① 已完成的网页版生存游戏 Demo《土豆突围》；② **化学 Roguelite 游戏 VALENCE 的设计文档**（尚未开发/验证）。不要把前者当成后者已经实现。详情见 [VALENCE GDD v0.1](docs/VALENCE_GDD_v0.1_Codex.md)。
+
+## VALENCE 化学游戏设计
+
+- [游戏设计与 Codex MVP 开发规格（GDD v0.1）](docs/VALENCE_GDD_v0.1_Codex.md)
+- 玩法：收集原子 → 合成分子装备 → 在战斗中触发化学反应；首次原型只支持 H/O/C 和六种分子。
+- 当前状态：**设计已保存，化学原型尚未实现**。新 session 先阅读 [HANDOFF.md](HANDOFF.md)，不要把 GDD 中的建议引擎当作既定决策。
 
 ## 已有 Demo
 
