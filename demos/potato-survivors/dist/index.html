@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#171d1b"><meta name="description" content="一颗土豆，一片荒野。移动、躲避、自动开火，撑过三分钟。"><title>土豆突围 · Potato Survivors</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="topbar"><a href="./" class="brand"><span class="brand-icon">✦</span> 土豆突围 <span class="brand-en">POTATO SURVIVORS</span></a><div class="top-right"><span class="demo-badge"><i></i> 可玩 DEMO</span><button class="icon-btn" id="sound" aria-label="开启音效" title="切换音效">♫<span class="sound-slash">╱</span></button></div></header>
+<main>
+<section id="home" class="home">
+<div class="hero-copy"><div class="eyebrow"><span></span> 小小土豆，大大危机</div><h1>别看我小，<br>我能<span class="orange">撑全场。</span></h1><p class="intro">一颗土豆，一片荒野，一大群不速之客。<br>带上你的勇气，活过这三分钟。</p><button class="primary" id="start">开始突围 <span>↗</span></button><div class="start-note"><span class="key small">↵</span> 按 Enter 开始 · 无需下载，即刻开玩</div><div class="hero-tags"><span><b>03:00</b> 一局三分钟</span><span><b>∞</b> 自动攻击</span><span><b>↗</b> 越打越强</span></div></div>
+<div class="hero-art"><canvas id="poster" aria-label="持枪土豆站在荒野中，四周小怪正在逼近"></canvas><div class="art-label"><span class="dot"></span> 荒野生存实验 / NO. 001</div><div class="float-tag">今天，也要顽强发芽。</div></div>
+<div class="how"><div class="how-title"><span>生存指南</span><small>先活下来，再变强</small></div><div class="how-item"><span class="step">01</span><div><h3>走位是门艺术</h3><p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 或方向键移动，手机滑动摇杆</p></div></div><div class="how-item"><span class="step">02</span><div><h3>开火交给我</h3><p>自动瞄准附近敌人，你只管灵活躲避</p></div></div><div class="how-item"><span class="step">03</span><div><h3>捡点绿的，长点本事</h3><p>收集经验结晶，升级选择专属强化</p></div></div></div>
+</section>
+<section id="play" class="play hidden">
+<div class="game-top"><div class="live-label"><i></i> 荒野 · 生存中</div><div class="timer" id="timer">03:00</div><button class="icon-btn" id="pause" aria-label="暂停游戏">Ⅱ</button></div>
+<div class="arena-wrap" id="arenaWrap"><canvas id="arena" tabindex="0" aria-label="游戏区域，使用 WASD 或方向键移动"></canvas><div class="hud"><div><div class="hp-caption"><span>♥ 生命值</span><b id="hpText">100 / 100</b></div><div class="hp-track"><div id="hpBar"></div></div></div><div class="kill-counter"><small>击败敌人</small><b id="kills">0</b></div></div><div class="xp-hud"><span id="level">LV. 1</span><div class="xp-track"><div id="xpBar"></div></div><span id="xpText">0 / 11</span></div><div class="wave" id="wave">第 1 波 · 初入荒野</div><div id="joystick" aria-label="拖动控制移动"><div id="stick"></div></div><div class="arena-caption">WASD 移动 · 自动攻击 · ESC 暂停</div>
+<div class="overlay hidden" id="overlay"><div class="modal" id="modal"></div></div></div>
+<div class="game-bottom"><span><i class="green-dot"></i> 拾取绿色结晶获取经验</span><span id="buildStats">伤害 18 · 攻速 2.2/s · 移速 210</span></div>
+</section>
+</main><footer><span>一颗土豆的第 N 次冒险。</span><span>走位要风骚，土豆要坚强。 <span class="footer-star">✦</span></span></footer>
+<script type="module" src="game.mjs"></script>
+</body></html>

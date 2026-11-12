@@ -1,0 +1,2 @@
+# 土豆突围
+Approved in conversation: lightweight browser prototype. WASD/arrows and touch joystick, automatic attacks, monster waves, experience pickup, three-choice upgrades, three-minute survival, death and instant restart. Original cartoon potato and warm wasteland presentation. No accounts, shop, or multiplayer. Buildless Canvas with DOM overlays chosen for fast loading and responsive controls; heavier engine unnecessary at this scope. Publish private with Sites.
