@@ -13,12 +13,13 @@ export class Lab{
  }
 }
 export class Run{
- constructor(random=Math.random){this.random=random;this.dropMode='standard';this.reset()}
+ constructor(random=Math.random){this.random=random;this.dropMode='standard';this.startingGun='water';this.reset()}
  reset(){Object.assign(this,{lab:new Lab(),abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],weaponEffects:[],enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0})}
  get needed(){return 8+(this.level-1)*5}
  get stats(){return gunStats(this.lab.gun,this.abilities)}
  setDropMode(mode){if(this.state!=='menu'||!Object.hasOwn(DROP_RATES,mode))return false;this.dropMode=mode;return true}
- start(){this.reset();this.state='playing'}
+ selectStartingGun(gun){if(this.state!=='menu'||!Object.hasOwn(RECIPES,gun))return false;this.startingGun=gun;return true}
+ start(gun=this.startingGun){if(gun!=='normal'&&!Object.hasOwn(RECIPES,gun))return false;this.reset();this.lab.gun={type:gun,level:gun==='normal'?0:1};this.state='playing';return true}
  craft(id,confirm=false){return this.state==='lab'?this.lab.craft(id,confirm):{ok:false,reason:'phase'}}
  nextWave(){if(this.state!=='lab'||this.lab.gun.type==='normal')return false;this.lab.returnAll();this.wave=2;this.waveTime=0;this.spawn=0;this.shot=0;this.hp=Math.min(this.abilities.maxHp,this.hp+35);this.state='playing';return true}
  burst(x,y,color,count=8){for(let i=0;i<count;i++){let a=this.random()*Math.PI*2,s=25+this.random()*100;this.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,color,life:.3+this.random()*.3})}}

@@ -1,6 +1,6 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import {Run,gunStats} from '../dist/model.mjs';
 const target=(id,x,y)=>({id,x,y,hp:90,maxHp:90,r:16,speed:0,type:1,burn:0,flash:0});
-function run(type='water',level=1){let r=new Run(()=>.99);r.start();r.spawn=100;r.lab.gun={type,level};return r}
+function run(type='water',level=1){let r=new Run(()=>.99);r.start('normal');r.spawn=100;r.lab.gun={type,level};return r}
 test('water level increases actual range; flame stays short and wide',()=>{let w1=gunStats({type:'water',level:1}),w5=gunStats({type:'water',level:5}),f1=gunStats({type:'flame',level:1});assert.ok(w5.range>w1.range);assert.ok(f1.range<w1.range);assert.ok(f1.halfAngle>.3)});
 test('out-of-range target does not trigger fire, upgrading water enables farther target',()=>{let a=run(),b=run('water',5);for(const r of[a,b])r.enemies=[target(1,960,400)];a.step(.01,{});b.step(.01,{});assert.equal(a.bullets.length,0);assert.equal(b.bullets.length,1)});
 test('water projectiles expire at range even if target leaves and cannot hit beyond range',()=>{let r=run();r.enemies=[target(1,800,400)];r.step(.01,{});assert.equal(r.bullets.length,1);r.enemies[0].x=1100;r.shot=100;for(let i=0;i<20;i++)r.step(.05,{});assert.equal(r.enemies[0].hp,90);assert.equal(r.bullets.length,0)});

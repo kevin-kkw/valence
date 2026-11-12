@@ -6,7 +6,7 @@
 
 [打开 VALENCE 两波试玩](https://valence-chain-lab.goodcamel13.chatgpt.site)（当前为原账号私有访问）。
 
-源码：[prototypes/valence-chain-lab](prototypes/valence-chain-lab)。普通枪开局，两波各60秒，中间一次不限时实验室；可制作水枪或氢燃烧枪，同系增强、异系替换并清零，枪型原型最高Lv.5。第二波出现失控反应釜Boss，需要击败后完成实验。
+源码：[prototypes/valence-chain-lab](prototypes/valence-chain-lab)。测试阶段开局免费选择Lv.1水枪或氢燃烧枪，两波各60秒，中间一次不限时实验室；可制作水枪或氢燃烧枪，同系增强、异系替换并清零，枪型原型最高Lv.5。第二波出现失控反应釜Boss，需要击败后完成实验。
 
 ```bash
 cd prototypes/valence-chain-lab
