@@ -6,7 +6,7 @@
 
 [打开 VALENCE 两波试玩](https://valence-chain-lab.goodcamel13.chatgpt.site)（当前为原账号私有访问）。
 
-源码：[prototypes/valence-chain-lab](prototypes/valence-chain-lab)。普通枪开局，两波各60秒，中间一次不限时实验室；可制作水枪或氢燃烧枪，同系增强、异系替换并清零，原型最高Lv.5。
+源码：[prototypes/valence-chain-lab](prototypes/valence-chain-lab)。普通枪开局，两波各60秒，中间一次不限时实验室；可制作水枪或氢燃烧枪，同系增强、异系替换并清零，枪型原型最高Lv.5。第二波出现失控反应釜Boss，需要击败后完成实验。
 
 ```bash
 cd prototypes/valence-chain-lab
@@ -19,6 +19,13 @@ npm run check
 无 JS 依赖、无需构建。测试用 Node.js 20+，本地静态服务器用 Python 3。WASD/方向键移动，自动射击，ESC暂停；波间可拖拽或点击物质投料。
 
 模型、镜头、DOM/canvas流程检查与语法检查已通过；真实浏览器布局、原生拖拽和实体触屏尚未验证。详见 [验证记录](prototypes/valence-chain-lab/docs/verification.md)。
+
+## 角色成长与怪物
+
+- 钻石按怪物类型必掉，拾取升级后暂停三选一角色能力；换枪不清除角色能力。
+- 物质卡低概率掉落用于改枪，标准18%，主菜单可切换75%测试加量。
+- 五种怪物：酸雾团、晶体甲壳兽、胶体集群、活泼金属小怪、失控反应釜。各有不同外观、行为和钻石奖励。
+- 能力包含血量、攻速、攻击力、防御、移速、拾取范围、回血和暴击。详细数值在catalog.mjs。
 
 ## 最新规则与设计
 

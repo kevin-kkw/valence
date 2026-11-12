@@ -10,3 +10,22 @@ export const RECIPES=Object.freeze({
 });
 export const emptyStock=()=>({water:0,hydrogen:0,oxygen:0});
 export function atomTotals(stock){let out={H:0,O:0};for(const [id,n]of Object.entries(stock))for(const [a,v]of Object.entries(MATERIALS[id]?.atoms||{}))out[a]+=n*v;return out}
+export const DROP_RATES=Object.freeze({standard:.18,high:.75});
+export const BASE_ABILITIES=Object.freeze({maxHp:100,damage:18,attackSpeed:1,defense:0,speed:225,magnet:125,regen:0,crit:0});
+export const ABILITIES=Object.freeze({
+ health:{name:'更强体魄',stat:'maxHp',step:20,unit:'',description:'最大生命 +20，并恢复20生命',icon:'♥'},
+ rate:{name:'快速装填',stat:'attackSpeed',step:.12,unit:'×',description:'全枪型基础攻速加成 +12%',icon:'ϟ'},
+ damage:{name:'精准打击',stat:'damage',step:3,unit:'',description:'直接命中伤害 +3',icon:'✴'},
+ defense:{name:'防护涂层',stat:'defense',step:.05,max:.6,unit:'%',description:'受到伤害减少5个百分点',icon:'⬡'},
+ speed:{name:'轻盈步伐',stat:'speed',step:15,unit:'',description:'移动速度 +15',icon:'➜'},
+ magnet:{name:'收集力场',stat:'magnet',step:25,unit:'',description:'拾取范围 +25',icon:'◇'},
+ regen:{name:'自我修复',stat:'regen',step:.5,unit:'/s',description:'每秒恢复生命 +0.5',icon:'✚'},
+ crit:{name:'弱点洞察',stat:'crit',step:.08,max:.8,unit:'%',description:'直接命中暴击率 +8%，暴击伤害2倍',icon:'⌖'}
+});
+export const ENEMY_TYPES=Object.freeze([
+ {id:'acid',name:'酸雾团',hp:32,speed:55,r:18,diamonds:2,damage:4,behavior:'acid',description:'在近距离释放酸雾，持续威胁周围区域'},
+ {id:'metal',name:'活泼金属小怪',hp:24,speed:95,r:13,diamonds:1,damage:9,behavior:'dash',description:'高速接近并短暂冲刺，生命较低'},
+ {id:'crystal',name:'晶体甲壳兽',hp:90,speed:36,r:25,diamonds:5,damage:14,behavior:'shell',description:'厚血低速，半血后外壳破裂'},
+ {id:'colloid',name:'胶体集群',hp:45,speed:57,r:22,diamonds:3,damage:8,behavior:'split',description:'击败后分裂成两个小型胶体'},
+ {id:'reactor',name:'失控反应釜',hp:280,speed:28,r:44,diamonds:16,damage:18,behavior:'boss',description:'第二波出现，分阶段释放不同实验样本'}
+]);
