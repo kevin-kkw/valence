@@ -1,6 +1,6 @@
 import {combatBounds,visibleInCombat} from './view.mjs';
-import {MATERIALS,RECIPES,emptyStock,MAX_LEVEL,BASE_ABILITIES,ABILITIES,DROP_RATES,ENEMY_TYPES,DIFFICULTY,waveScaling} from './catalog.mjs';
-export function gunStats(gun,abilities=BASE_ABILITIES){const level=Math.max(1,gun.level);return {damage:abilities.damage,interval:(gun.type==='water'?Math.max(.12,.42/(1+.45*level)):.42)/abilities.attackSpeed,burnDps:gun.type==='flame'?7+level*5:0,burnTime:gun.type==='flame'?2.5:0,crit:abilities.crit}}
+import {MATERIALS,RECIPES,emptyStock,MAX_LEVEL,BASE_ABILITIES,ABILITIES,DROP_RATES,ENEMY_TYPES,DIFFICULTY,waveScaling,WEAPON_PROFILES} from './catalog.mjs';
+export function gunStats(gun,abilities=BASE_ABILITIES){const level=Math.max(1,gun.level),profile=WEAPON_PROFILES[gun.type]||WEAPON_PROFILES.normal;return {range:profile.range+profile.rangePerLevel*(level-1),halfAngle:profile.halfAngle+(profile.anglePerLevel||0)*(level-1),damage:abilities.damage,interval:(gun.type==='water'?Math.max(.12,.42/(1+.45*level)):.42)/abilities.attackSpeed,burnDps:gun.type==='flame'?7+level*5:0,burnTime:gun.type==='flame'?2.5:0,crit:abilities.crit}}
 export class Lab{
  constructor(){this.inventory=emptyStock();this.furnace=emptyStock();this.gun={type:'normal',level:0};this.products=emptyStock();this.ignition=true;this.discoveries=[];this.history=[]}
  moveMaterial(id,to){if(!Object.hasOwn(MATERIALS,id)||!['furnace','inventory'].includes(to))return false;let from=to==='furnace'?'inventory':'furnace';if(this[from][id]<1)return false;this[from][id]--;this[to][id]++;return true}
@@ -14,7 +14,7 @@ export class Lab{
 }
 export class Run{
  constructor(random=Math.random){this.random=random;this.dropMode='standard';this.reset()}
- reset(){Object.assign(this,{lab:new Lab(),abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0})}
+ reset(){Object.assign(this,{lab:new Lab(),abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],weaponEffects:[],enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0})}
  get needed(){return 8+(this.level-1)*5}
  get stats(){return gunStats(this.lab.gun,this.abilities)}
  setDropMode(mode){if(this.state!=='menu'||!Object.hasOwn(DROP_RATES,mode))return false;this.dropMode=mode;return true}
@@ -47,23 +47,30 @@ export class Run{
   }
   this.hazards=this.hazards.filter(h=>h.elapsed<h.life);
  }
- endWave(){for(const d of this.drops)this.collect(d);this.drops=[];this.enemies=[];this.hazards=[];this.bullets=[];this.particles=[];this.texts=[];if(this.wave===2){this.state='won';return}const minimum=this.dropMode==='high'?{water:4,hydrogen:6,oxygen:3}:{water:1,hydrogen:2,oxygen:1};for(const id of Object.keys(minimum)){this.supply[id]=Math.max(0,minimum[id]-this.lab.inventory[id]);this.lab.inventory[id]+=this.supply[id]}this.state='lab';this.checkUpgrade()}
+ endWave(){for(const d of this.drops)this.collect(d);this.drops=[];this.enemies=[];this.hazards=[];this.weaponEffects=[];this.bullets=[];this.particles=[];this.texts=[];if(this.wave===2){this.state='won';return}const minimum=this.dropMode==='high'?{water:4,hydrogen:6,oxygen:3}:{water:1,hydrogen:2,oxygen:1};for(const id of Object.keys(minimum)){this.supply[id]=Math.max(0,minimum[id]-this.lab.inventory[id]);this.lab.inventory[id]+=this.supply[id]}this.state='lab';this.checkUpgrade()}
  step(dt,input={}){
   if(this.state!=='playing')return;dt=Math.min(.1,Math.max(0,dt));this.events=[];if(this.hp<=0){this.state='dead';return}
   this.elapsed+=dt;this.waveTime=Math.min(60,this.waveTime+dt);if(this.waveTime>=60-1e-8&&(this.wave===1||this.bossDefeated)){this.endWave();return}
-  this.hp=Math.min(this.abilities.maxHp,this.hp+this.abilities.regen*dt);
+  this.hp=Math.min(this.abilities.maxHp,this.hp+this.abilities.regen*dt);for(const effect of this.weaponEffects)effect.life-=dt;this.weaponEffects=this.weaponEffects.filter(e=>e.life>0);
   let ix=input.x||0,iy=input.y||0,n=Math.hypot(ix,iy);if(n>1){ix/=n;iy/=n}this.x=Math.max(28,Math.min(1172,this.x+ix*this.abilities.speed*dt));this.y=Math.max(28,Math.min(772,this.y+iy*this.abilities.speed*dt));
   const viewport=input.viewport||{width:1200,height:800},bounds=combatBounds(viewport.width,viewport.height,this.x,this.y);
   this.inv=Math.max(0,this.inv-dt);this.spawn-=dt;this.shot-=dt;
   if(this.wave===2&&this.waveTime>=25&&!this.bossSpawned)this.spawnEnemy(4,600,100);
   if(this.spawn<=0&&this.waveTime<60&&this.enemies.length<95){let a=this.random()*Math.PI*2,type=this.spawnCount<4?this.spawnCount:Math.floor(this.random()*4);this.spawnCount++;this.spawnEnemy(type,600+Math.cos(a)*740,400+Math.sin(a)*550);this.spawn=Math.max(.35,(this.wave===1?1.05:.8)-this.waveTime*.002)}
-  const stats=this.stats,targets=this.enemies.filter(e=>e.hp>0&&visibleInCombat(e,bounds));if(this.shot<=0&&targets.length){let e=targets.reduce((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)<Math.hypot(b.x-this.x,b.y-this.y)?a:b);let dist=Math.hypot(e.x-this.x,e.y-this.y);this.angle=Math.atan2(e.y-this.y,e.x-this.x);if(dist<660){this.bullets.push({x:this.x+Math.cos(this.angle)*22,y:this.y+Math.sin(this.angle)*22,vx:Math.cos(this.angle)*600,vy:Math.sin(this.angle)*600,life:1.25,type:this.lab.gun.type,stats});this.shot=stats.interval;this.events.push('shot')}}
+  const stats=this.stats,targets=this.enemies.filter(e=>e.hp>0&&visibleInCombat(e,bounds)&&Math.hypot(e.x-this.x,e.y-this.y)<=stats.range);
+  if(this.shot<=0&&targets.length){const target=targets.reduce((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)<Math.hypot(b.x-this.x,b.y-this.y)?a:b);this.angle=Math.atan2(target.y-this.y,target.x-this.x);
+   if(this.lab.gun.type==='flame'){
+    const duration=Math.min(.45,Math.max(.2,stats.interval*1.1));this.weaponEffects.push({type:'flame',visual:'cone',x:this.x,y:this.y,originX:this.x,originY:this.y,angle:this.angle,length:stats.range,halfAngle:stats.halfAngle,life:duration,duration,born:this.elapsed});this.weaponEffects=this.weaponEffects.slice(-3);
+    for(const e of [...targets]){const angle=Math.atan2(e.y-this.y,e.x-this.x),diff=Math.abs(Math.atan2(Math.sin(angle-this.angle),Math.cos(angle-this.angle)));if(diff>stats.halfAngle)continue;const critical=stats.crit>0&&this.random()<stats.crit;this.hit(e,stats.damage*(critical?2:1));if(e.hp>0){e.burn=stats.burnTime;e.burnDps=stats.burnDps;this.burnHits++}this.burst(e.x,e.y,'#bed9ff',5)}
+   }else{const x=this.x+Math.cos(this.angle)*22,y=this.y+Math.sin(this.angle)*22;this.bullets.push({x,y,originX:x,originY:y,vx:Math.cos(this.angle)*600,vy:Math.sin(this.angle)*600,life:1.25,remaining:stats.range-22,type:this.lab.gun.type,stats})}
+   this.shot=stats.interval;this.events.push('shot');
+  }
   for(const e of [...this.enemies]){if(e.hp<=0)continue;const def=ENEMY_TYPES[e.type]||ENEMY_TYPES[0];e.age=(e.age||0)+dt;let dx=this.x-e.x,dy=this.y-e.y,d=Math.hypot(dx,dy)||1;const dash=e.type===1&&e.age%3<.5?1.9:1;e.dashing=dash>1;e.x+=dx/d*e.speed*dt*dash;e.y+=dy/d*e.speed*dt*dash;e.flash=Math.max(0,(e.flash||0)-dt);
    if(e.type===4){const phase=e.hp/e.maxHp>.65?1:e.hp/e.maxHp>.3?2:3;if(phase!==e.phase){e.phase=phase;e.summon=0;e.skillTimer=Math.min(e.skillTimer,.9);if(phase===3)this.events.push('overdrive')}e.summon-=dt;if(e.summon<=0){const type=e.phase===1?0:e.phase===2?1:3;for(const offset of [-50,50])this.spawnEnemy(type,e.x+offset,e.y+40);e.summon=6-e.phase}e.skillTimer-=dt;if(e.skillTimer<=0){this.castBossSkill(e);e.skillTimer=8-e.phase*1.2}}
    if(e.burn>0){this.hit(e,e.burnDps*Math.min(dt,e.burn),true);e.burn=Math.max(0,e.burn-dt)}
    const range=e.type===0?90:e.r+18;if(e.hp>0&&visibleInCombat(e,bounds)&&d<range)this.hurt(e.damage??def.damage);
   }
-  for(const b of this.bullets){let ox=b.x,oy=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;for(const e of this.enemies){let dx=b.x-ox,dy=b.y-oy,t=Math.max(0,Math.min(1,((e.x-ox)*dx+(e.y-oy)*dy)/(dx*dx+dy*dy||1)));if(e.hp>0&&visibleInCombat(e,bounds)&&b.life>0&&Math.hypot(e.x-(ox+t*dx),e.y-(oy+t*dy))<e.r+6){const critical=b.stats.crit>0&&this.random()<b.stats.crit;this.hit(e,b.stats.damage*(critical?2:1));if(e.hp>0&&b.type==='flame'){e.burn=b.stats.burnTime;e.burnDps=b.stats.burnDps;this.burnHits++}this.burst(b.x,b.y,b.type==='water'?'#77d9f5':b.type==='flame'?'#aebcff':'#e4d8a6',6);b.life=0;break}}}
+  for(const b of this.bullets){let ox=b.x,oy=b.y;const speed=Math.hypot(b.vx,b.vy),travel=Math.min(speed*dt,b.remaining??Infinity),fraction=travel/(speed*dt||1);b.x+=b.vx*dt*fraction;b.y+=b.vy*dt*fraction;if(b.remaining!==undefined)b.remaining-=travel;b.life-=dt;for(const e of this.enemies){let dx=b.x-ox,dy=b.y-oy,t=Math.max(0,Math.min(1,((e.x-ox)*dx+(e.y-oy)*dy)/(dx*dx+dy*dy||1)));if(e.hp>0&&visibleInCombat(e,bounds)&&b.life>0&&Math.hypot(e.x-(ox+t*dx),e.y-(oy+t*dy))<e.r+6){const critical=b.stats.crit>0&&this.random()<b.stats.crit;this.hit(e,b.stats.damage*(critical?2:1));if(e.hp>0&&b.type==='flame'){e.burn=b.stats.burnTime;e.burnDps=b.stats.burnDps;this.burnHits++}this.burst(b.x,b.y,b.type==='water'?'#77d9f5':b.type==='flame'?'#aebcff':'#e4d8a6',6);b.life=0;break}}if(b.remaining<=0)b.life=0}
   this.enemies=this.enemies.filter(e=>e.hp>0);this.bullets=this.bullets.filter(b=>b.life>0&&b.x>=bounds.left&&b.x<=bounds.right&&b.y>=bounds.top&&b.y<=bounds.bottom);
   this.updateHazards(dt);
   this.drops=this.drops.filter(drop=>{let dx=this.x-drop.x,dy=this.y-drop.y,n=Math.hypot(dx,dy);if(n<this.abilities.magnet){let s=Math.min(n,460*dt);drop.x+=dx/(n||1)*s;drop.y+=dy/(n||1)*s}if(n<24){this.collect(drop);return false}return true});
