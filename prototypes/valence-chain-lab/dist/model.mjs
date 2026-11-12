@@ -4,9 +4,9 @@ export class Lab{
  constructor(){this.inventory=emptyStock();this.furnace=emptyStock();this.gun={type:'normal',level:0};this.products=emptyStock();this.ignition=true;this.discoveries=[];this.history=[]}
  moveMaterial(id,to){if(!Object.hasOwn(MATERIALS,id)||!['furnace','inventory'].includes(to))return false;let from=to==='furnace'?'inventory':'furnace';if(this[from][id]<1)return false;this[from][id]--;this[to][id]++;return true}
  returnAll(){for(const id of Object.keys(MATERIALS)){this.inventory[id]+=this.furnace[id];this.furnace[id]=0}}
- recipeInfo(id){const r=RECIPES[id];if(!r)return null;let missing={};for(const [key,n]of Object.entries(r.cost)){let diff=n-this.furnace[key];if(diff>0)missing[key]=diff}return {recipe:r,missing,maxed:this.gun.type===id&&this.gun.level>=MAX_LEVEL,ready:Object.keys(missing).length===0,replace:this.gun.type!=='normal'&&this.gun.type!==id}}
+ recipeInfo(id){const r=RECIPES[id];if(!r)return null;let missing={};for(const [key,n]of Object.entries(r.cost)){let diff=n-this.furnace[key]-this.inventory[key];if(diff>0)missing[key]=diff}return {recipe:r,missing,maxed:this.gun.type===id&&this.gun.level>=MAX_LEVEL,ready:Object.keys(missing).length===0,replace:this.gun.type!=='normal'&&this.gun.type!==id}}
  craft(id,confirm=false){const info=this.recipeInfo(id);if(!info)return {ok:false,reason:'unknown'};if(info.maxed)return {ok:false,reason:'maxed'};if(!info.ready)return {ok:false,reason:'materials'};if(id==='flame'&&!this.ignition)return {ok:false,reason:'ignition'};if(info.replace&&!confirm)return {ok:false,reason:'replace'};
- for(const [key,n]of Object.entries(info.recipe.cost))this.furnace[key]-=n;
+ for(const [key,n]of Object.entries(info.recipe.cost)){const staged=Math.min(n,this.furnace[key]);this.furnace[key]-=staged;this.inventory[key]-=n-staged}
  this.gun={type:id,level:this.gun.type===id?this.gun.level+1:1};for(const [key,n]of Object.entries(info.recipe.products))this.products[key]+=n;
  if(!this.discoveries.includes(id))this.discoveries.push(id);this.history.push({id,level:this.gun.level});this.returnAll();return {ok:true,gun:this.gun,equation:info.recipe.equation}
  }
