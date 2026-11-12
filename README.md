@@ -65,3 +65,6 @@ GitHub用于保存和继续开发，尚未配置自动部署。两个原型各�
 
 
 配方路线概念演示：[打开互动演示](https://valence-chain-lab.goodcamel13.chatgpt.site/recipe-demo.html)，独立库存，展示材料制备与装配的分支取舍。
+
+
+新配件试玩：[火里生水](https://valence-chain-lab.goodcamel13.chatgpt.site/pack-demo.html)。氢氧喷火蓄水，满包自动向侧后方喷水；开火边喷边补，空包停喷并等待蓄满。配件创意已完整保存在项目设计记录中。

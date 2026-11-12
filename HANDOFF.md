@@ -215,3 +215,12 @@ Sites 原来的源码托管是服务管理的独立 Git 仓库，与 `kevin-kkw/
 已添加 `/recipe-demo.html`，主菜单有入口。演示“Fe 直接装铁弹枪”与“Fe + 2HCl → FeCl₂ + H₂↑，制氢再装氢燃烧枪”的库存取舍，副产物保留；另有点燃 C + O₂ → CO₂ 路线。使用独立库存和草案装配成本，主游戏六枪配方、战斗与掉落池未迁移。新增 C、FeCl₂ 仅在演示页。源码与说明在 `prototypes/valence-chain-lab/`。模型测试和 DOM/canvas mock 通过，尚未真实浏览器视觉验证。
 
 演示：https://valence-chain-lab.goodcamel13.chatgpt.site/recipe-demo.html
+
+
+## 2026-11-12 配件玩法新方向与可玩 demo
+
+用户强调先有乐趣、在玩中学化学，认为上一版制备路线复杂难懂。新方向是主枪产生物质，配件将产物变成新能力。全部六种配件及多槽连锁创意已记录在 `prototypes/valence-chain-lab/docs/accessory-playground.md`，未来设想与本轮实现有明确区分。
+
+新入口：https://valence-chain-lab.goodcamel13.chatgpt.site/pack-demo.html 。独立60秒战斗试验场：无限氢氧喷火枪 + 默认空冷凝水包，持续喷火约五秒蓄满后自动侧后方喷水。用户追加的规则已实现：喷水持续耗水，开火同时补水，停火不补水，空包停止，必须重新蓄满才启动下一次。默认耗水大于补水；F 或按钮开停火，Q 装卸配件，WASD/方向键移动，鼠标瞄准可选，触屏有备用摇杆，失焦暂停。火焰保留灼烧，水流有实际伤害与轻推力。
+
+原主游戏与旧配方演示保留，新配件未迁移进主游戏成长与制作系统；其他配件尚未实现。模型和 DOM/canvas mock 全套通过；未真实浏览器视觉验收。后续先听取试玩手感，再决定配件成长与正式整合。
