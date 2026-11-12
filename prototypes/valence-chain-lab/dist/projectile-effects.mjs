@@ -1,7 +1,7 @@
 // Deterministic, presentation-only geometry. Damage lives in model.mjs.
 export function projectileVisual(b,time){
  const kind=b.type||'normal',angle=b.angle??Math.atan2(b.vy||0,b.vx||1);let x=b.originX??b.x-(b.vx||0)*.09,y=b.originY??b.y-(b.vy||0)*.09;
- let length=b.visual==='cone'?b.length:Math.hypot(b.x-x,b.y-y);if(kind==='water'){length=Math.min(36,length);x=b.x-Math.cos(angle)*length;y=b.y-Math.sin(angle)*length}if(kind==='normal'){length=Math.min(16,length);x=b.x-Math.cos(angle)*length;y=b.y-Math.sin(angle)*length}
+ let length=b.visual==='cone'?b.length:Math.hypot(b.x-x,b.y-y);if(kind==='water'){length=Math.min(36,length);x=b.x-Math.cos(angle)*length;y=b.y-Math.sin(angle)*length}if(kind==='acid'||kind==='iron'){length=Math.min(kind==='iron'?58:24,length);x=b.x-Math.cos(angle)*length;y=b.y-Math.sin(angle)*length}if(kind==='normal'){length=Math.min(16,length);x=b.x-Math.cos(angle)*length;y=b.y-Math.sin(angle)*length}
  const phase=time*24+x*.03+y*.02,width=kind==='flame'?(b.visual==='cone'?Math.tan(b.halfAngle)*length*2:32):kind==='water'?9:4;
  const droplets=kind==='water'?Array.from({length:9},(_,i)=>({x:((i/9+time*2.4)%1)*length,y:Math.sin(phase+i*2)*3,r:1.3+i%3*.4})):[];
  const tongues=kind==='flame'?Array.from({length:9},(_,i)=>{let u=.2+i/11;return {x:length*u,y:Math.sin(phase+i*2.7)*width*u*.32,length:12+Math.sin(phase*.8+i)*6+i*1.2,width:3+i*.5}}):[];
@@ -9,7 +9,7 @@ export function projectileVisual(b,time){
  const wisps=kind==='flame'?Array.from({length:32},(_,i)=>{const u=.12+((i*.6180339+time*1.8)%1)*.86,a=halfAngle*Math.sin(i*2.4+time*3)*.86;return {x:Math.cos(a)*length*u,y:Math.sin(a)*length*u,length:14+u*25,width:3+u*10,phase:phase+i*2.1,u}}):[];
  return {wisps,envelope,halfAngle,kind,x,y,angle,length:Math.max(0,length),width,phase,droplets,tongues,alpha:b.visual==='cone'?Math.min(1,b.life/Math.max(.05,b.duration)*2.8):1};
 }
-export function drawProjectile(c,b,time){const v=projectileVisual(b,time);if(v.length<1)return;c.save();c.translate(v.x,v.y);c.rotate(v.angle);c.globalAlpha=v.alpha;c.lineCap='round';
+export function drawProjectile(c,b,time){if(['gas','electric','acidSplash'].includes(b.type)){drawWeaponEffect(c,b,time);return}const v=projectileVisual(b,time);if(v.length<1)return;c.save();c.translate(v.x,v.y);c.rotate(v.angle);c.globalAlpha=v.alpha;c.lineCap='round';
  if(v.kind==='water'){
   // A connected pressurised column, with a rippled edge and moving highlights.
   const path=()=>{c.beginPath();c.moveTo(0,0);c.bezierCurveTo(v.length*.3,Math.sin(v.phase)*2,v.length*.7,Math.sin(v.phase+2)*3,v.length,0)};
@@ -31,7 +31,7 @@ export function drawProjectile(c,b,time){const v=projectileVisual(b,time);if(v.l
   }
   // A bright pulsing nozzle joins the plume to the weapon.
   c.beginPath();c.ellipse(28,0,18+Math.sin(v.phase)*3,5,0,0,Math.PI*2);c.fillStyle='#edfbff';c.fill();c.restore();
- }else{c.beginPath();c.moveTo(0,0);c.lineTo(v.length,0);c.strokeStyle='#e9ddb4';c.lineWidth=4;c.stroke()}
+ }else if(v.kind==='acid'){c.strokeStyle='#a6e45e88';c.lineWidth=5;c.beginPath();c.moveTo(0,0);c.lineTo(v.length,0);c.stroke();for(let i=0;i<4;i++){c.beginPath();c.arc(v.length*i/3,Math.sin(v.phase+i)*2,2+i*.65,0,Math.PI*2);c.fillStyle=i===3?'#d9ffa3':'#a4de6588';c.fill();c.strokeStyle='#e7ffbe';c.lineWidth=.8;c.stroke()}}else if(v.kind==='iron'){c.beginPath();c.moveTo(0,0);c.lineTo(v.length,0);c.strokeStyle='#becddd88';c.lineWidth=6;c.stroke();c.beginPath();c.moveTo(v.length*.2,0);c.lineTo(v.length,0);c.strokeStyle='#f5faff';c.lineWidth=2;c.stroke();c.fillStyle='#a6b6c4';c.fillRect(v.length-7,-2,9,4)}else{c.beginPath();c.moveTo(0,0);c.lineTo(v.length,0);c.strokeStyle='#e9ddb4';c.lineWidth=4;c.stroke()}
  c.restore();
 }
 
@@ -51,3 +51,13 @@ export function drawWaterFlow(c,particles,muzzle,time,impacts=[]){
  for(let i=0;i<impacts.length;i++){const p=impacts[i],radius=3+(1-p.life/.16)*12;c.globalAlpha=Math.max(0,p.life/.16);c.strokeStyle='#bdefff';c.lineWidth=1.5;for(let j=0;j<5;j++){const a=j*Math.PI*2/5+i;c.beginPath();c.moveTo(p.x+Math.cos(a)*3,p.y+Math.sin(a)*3);c.lineTo(p.x+Math.cos(a)*radius,p.y+Math.sin(a)*radius);c.stroke()}}
  c.restore();
 }
+
+// World-space deterministic chain points; every hit node remains an exact endpoint.
+export function electricArcSegments(nodes,time=0){return (nodes||[]).slice(1).map((node,i)=>{const from=nodes[i],dx=node.x-from.x,dy=node.y-from.y,length=Math.hypot(dx,dy),steps=Math.max(2,Math.ceil(length/13));return Array.from({length:steps+1},(_,j)=>{const u=j/steps,bend=j===0||j===steps?0:Math.sin(j*2.37+i*4.1+time*39)*Math.min(8,length*.1);return {x:from.x+dx*u-(length?dy/length:0)*bend,y:from.y+dy*u+(length?dx/length:0)*bend}})})}
+// Local cloud centres sit inside the actual cone. Drawing also clips their edges.
+export function gasClouds(effect,time=0){const length=Math.max(0,effect.length||0),half=effect.halfAngle??.5;return Array.from({length:15},(_,i)=>{const u=.16+((i*.6180339+time*.8)%1)*.78,a=Math.sin(i*2.1+time*2)*half*.8;return {x:Math.cos(a)*length*u,y:Math.sin(a)*length*u,r:8+u*18}})}
+function drawWeaponEffect(c,b,time){c.save();c.globalAlpha=Math.max(0,Math.min(1,b.life/Math.max(.01,b.duration||.22)));
+ if(b.type==='electric'){c.lineJoin='round';c.lineCap='round';for(const points of electricArcSegments(b.nodes,time)){const path=()=>{c.beginPath();points.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y))};path();c.strokeStyle='#bd8dff66';c.lineWidth=9;c.stroke();path();c.strokeStyle='#c6a4ff';c.lineWidth=3.5;c.stroke();path();c.strokeStyle='#faf4ff';c.lineWidth=1.2;c.stroke()}}
+ else if(b.type==='gas'){c.translate(b.originX??b.x,b.originY??b.y);c.rotate(b.angle||0);const half=b.halfAngle??.5,length=b.length||0;c.beginPath();c.moveTo(0,0);c.arc(0,0,length,-half,half);c.closePath();c.clip();for(const cloud of gasClouds(b,time)){const gradient=c.createRadialGradient(cloud.x,cloud.y,0,cloud.x,cloud.y,cloud.r);gradient.addColorStop(0,'#f0f6d977');gradient.addColorStop(.7,'#c5d6ba44');gradient.addColorStop(1,'#b8d3c000');c.fillStyle=gradient;c.beginPath();c.ellipse(cloud.x,cloud.y,cloud.r,cloud.r*.8,0,0,Math.PI*2);c.fill()}c.strokeStyle='#e2f3d577';c.lineWidth=2;for(let i=0;i<3;i++){const r=length*(.3+i*.25);c.beginPath();c.arc(0,0,r,-half*.75,half*.75);c.stroke()}}
+ else{c.translate(b.x,b.y);const progress=1-Math.max(0,b.life/(b.duration||.22)),radius=b.radius||22;for(let i=0;i<8;i++){const angle=i*Math.PI/4,dist=radius*progress*.8;c.beginPath();c.arc(Math.cos(angle)*dist,Math.sin(angle)*dist,2+(i%3),0,Math.PI*2);c.fillStyle='#b2ed6966';c.fill();c.strokeStyle='#d9ffa7';c.lineWidth=1;c.stroke()}}
+ c.restore()}

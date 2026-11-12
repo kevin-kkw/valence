@@ -10,4 +10,6 @@
 - 修改现有 Sites 时复用 Demo 的 `.openai/hosting.json` 中 project_id，保持既有访问范围。仅保存或交接文件不需要重新发布。
 - 不提交令牌、凭据、环境秘密、带访问签名的资源链接、执行日志或完整聊天转储。
 
-- 当前VALENCE原型在 `prototypes/valence-chain-lab/`，普通枪开局、物质资源、单枪、同系增强/异系清零、两波60秒。修改前读其README，修改后执行其 `npm test` 和 `npm run check`。两个Site的manifest不能混用。
+- 当前VALENCE原型在 `prototypes/valence-chain-lab/`，开局免费选择六种化学枪、七种物资、单枪、同系增强/异系清零、两波60秒加走位Boss。修改前读其README，修改后执行其 `npm test` 和 `npm run check`。两个Site的manifest不能混用。
+
+- 当前扩展仅实现新枪射击/特效/配方，属性相克与减弱尚未实现；不要把酸液统一腐蚀状态当作已存在的材质克制表。新增装填/溶解/装配要与真实化学反应分开标注。

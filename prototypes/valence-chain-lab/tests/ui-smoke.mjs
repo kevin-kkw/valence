@@ -19,3 +19,10 @@ add('oxygen');click('nextWave');assert.equal(run.wave,2);assert.equal(element('s
 console.log('UI smoke PASS: start, Canvas calls, pause/log, lab click+drop, leftovers, same-family upgrade, replacement cancel/confirm, wave two, blur, result and restart. Not a browser/pixel test.');
 
 click('pause');click('back');click('startFlame');assert.equal(run.startingGun,'flame');assert.equal(element('gunName').textContent,'氢燃烧枪');click('start');assert.equal(run.lab.gun.type,'flame');assert.equal(run.lab.gun.level,1);assert.equal(run.lab.inventory.hydrogen,0);
+for(const [button,type]of [['startAcid','acid'],['startGas','gas'],['startElectric','electric'],['startIron','iron']]){
+ click('pause');click('back');click(button);assert.equal(run.startingGun,type);click('start');assert.equal(run.lab.gun.type,type);assert.equal(run.lab.gun.level,1);
+ run.spawn=100;run.enemies=[{id:1000,type:2,x:run.x+90,y:run.y,hp:200,maxHp:200,r:16,speed:0,burn:0,flash:0}];for(let i=0;i<6;i++)tick();assert.ok(run.enemies[0].hp<200);
+}
+run.enemies=[];run.waveTime=59.99;tick();while(run.state==='upgrade'){click('ability0')}assert.equal(run.state,'lab');assert.match(element('recipeCards').innerHTML,/酸液枪/);assert.match(element('recipeCards').innerHTML,/铁弹枪/);assert.equal(element('recipeCount').textContent,'06 AVAILABLE');
+for(const type of ['acid','gas','electric','iron']){select(type);const amountBefore=Object.values(run.lab.inventory).reduce((a,b)=>a+b,0);click('craft');if(!element('dialogOverlay').classList.contains('hidden'))click('confirmReplace');assert.equal(run.lab.gun.type,type);assert.ok(Object.values(run.lab.inventory).reduce((a,b)=>a+b,0)<amountBefore)}
+console.log('Expanded UI smoke PASS: six starting guns, four new attack render paths, six laboratory recipes and automatic material deduction.');

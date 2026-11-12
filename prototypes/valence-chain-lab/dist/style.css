@@ -11,3 +11,45 @@
 .starting-guns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px auto 22px;max-width:430px}.starting-gun{border:1px solid #5a775d;background:#20392bcc;border-radius:7px;padding:13px 12px;color:#dbeacf;text-align:center}.starting-gun.selected{border-color:#c4eaa5;background:#355232;box-shadow:inset 0 0 0 1px #b5da9166}.starting-gun>span{font-size:26px;display:block;color:#c5e1fb}.starting-gun>strong{font-size:13px;font-weight:500;display:block;margin:5px 0}.starting-gun>small{font-size:8px;display:block;color:#aec4a1;line-height:1.8}.starting-gun>b{display:block;font:10px monospace;color:#daedc3;margin:9px 0}.starting-gun>em{display:block;font-style:normal;font-size:7px;color:#91ae7d}@media(max-height:650px){.starting-guns{margin:10px auto;gap:8px}.starting-gun{padding:8px}.starting-gun>span{font-size:18px}.starting-gun>strong{font-size:11px}.screen-card:has(.starting-guns) h2{font-size:24px}.screen-card:has(.starting-guns)>p{font-size:9px;line-height:1.5;margin-bottom:8px}}
 
 .screen-overlay:has(.starting-guns){padding:18px}.screen-card:has(.starting-guns){padding:8px 0}.screen-card:has(.starting-guns) h2{font-size:28px;line-height:1.25;margin-bottom:12px}.screen-card:has(.starting-guns)>p{font-size:10px;margin-bottom:12px}.screen-card .starting-guns{margin:12px auto 16px}.screen-card .starting-gun{padding:9px}.screen-card:has(.starting-guns) .start-tip{margin-top:12px}.screen-card:has(.starting-guns) .drop-setting{margin-top:10px}
+
+/* Six selectable prototypes and the full material library share compact scroll areas. */
+.screen-card:has(.starting-guns){width:100%;max-width:600px;overscroll-behavior:contain;scrollbar-width:thin}
+.screen-card .starting-guns{grid-template-columns:repeat(3,minmax(0,1fr));max-width:560px;gap:8px;margin:10px auto 14px}
+.screen-card .starting-gun{min-width:0;padding:8px 6px}
+.starting-gun>span{font-size:21px;line-height:1.1}
+.starting-gun>strong{font-size:11px;margin:4px 0}
+.starting-gun>small{font-size:8px;line-height:1.5}
+.starting-gun>b{font-size:9px;margin:5px 0}
+#materialCards{max-height:380px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:3px}
+.material-icon{width:64px;min-width:64px;font-size:14px;white-space:nowrap}
+.material-card{gap:8px;padding:8px}
+.material-copy{min-width:0}
+.material-copy small{line-height:1.5}
+#recipeCards{max-height:410px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:3px}
+.gun-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gun-stats b{overflow-wrap:anywhere}
+#statEffectLabel{font:inherit;color:inherit}
+.furnace-contents{flex-wrap:wrap}
+.flask-icon{width:76px}
+.flask-icon span{font-size:11px;white-space:nowrap}
+.recipe-number{font-size:18px;max-width:48%;overflow-wrap:anywhere}
+.experiment-card #equation{line-height:1.6;overflow-wrap:anywhere}
+@media(max-width:760px){
+ .screen-card .starting-guns{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #materialCards{max-height:360px}
+ .material-icon{width:56px;min-width:56px;font-size:12px}
+ .material-card{gap:5px;padding:6px}
+ #recipeCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:330px}
+ .recipe-card,.recipe-card+ .recipe-card{width:100%;margin:0}
+ .recipe-head{gap:4px;flex-wrap:wrap}
+}
+@media(max-height:650px){
+ .screen-card:has(.starting-guns) .eyebrow{margin-bottom:4px}
+ .screen-card .starting-guns{margin:7px auto;gap:5px}
+ .screen-card .starting-gun{padding:6px}
+ .starting-gun>span{font-size:17px}
+ .starting-gun>b{margin:3px 0}
+ .screen-card:has(.starting-guns) .primary{padding:9px 16px}
+ #materialCards{max-height:280px}
+ #recipeCards{max-height:300px}
+}
