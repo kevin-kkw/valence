@@ -1,5 +1,5 @@
 import {combatBounds,visibleInCombat} from './view.mjs';
-import {MATERIALS,RECIPES,emptyStock,MAX_LEVEL,BASE_ABILITIES,ABILITIES,DROP_RATES,ENEMY_TYPES} from './catalog.mjs';
+import {MATERIALS,RECIPES,emptyStock,MAX_LEVEL,BASE_ABILITIES,ABILITIES,DROP_RATES,ENEMY_TYPES,DIFFICULTY,waveScaling} from './catalog.mjs';
 export function gunStats(gun,abilities=BASE_ABILITIES){const level=Math.max(1,gun.level);return {damage:abilities.damage,interval:(gun.type==='water'?Math.max(.12,.42/(1+.45*level)):.42)/abilities.attackSpeed,burnDps:gun.type==='flame'?7+level*5:0,burnTime:gun.type==='flame'?2.5:0,crit:abilities.crit}}
 export class Lab{
  constructor(){this.inventory=emptyStock();this.furnace=emptyStock();this.gun={type:'normal',level:0};this.products=emptyStock();this.ignition=true;this.discoveries=[];this.history=[]}
@@ -14,7 +14,7 @@ export class Lab{
 }
 export class Run{
  constructor(random=Math.random){this.random=random;this.dropMode='standard';this.reset()}
- reset(){Object.assign(this,{lab:new Lab(),abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0})}
+ reset(){Object.assign(this,{lab:new Lab(),abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0})}
  get needed(){return 8+(this.level-1)*5}
  get stats(){return gunStats(this.lab.gun,this.abilities)}
  setDropMode(mode){if(this.state!=='menu'||!Object.hasOwn(DROP_RATES,mode))return false;this.dropMode=mode;return true}
@@ -25,14 +25,29 @@ export class Run{
  collect(drop){if(drop.kind==='diamond'){const value=drop.value||1;this.xp+=value;this.diamonds+=value;this.events.push('diamond');this.burst(drop.x,drop.y,'#efeec2',4);return}if(!MATERIALS[drop.material])return;this.lab.inventory[drop.material]++;this.picked++;this.events.push('pickup');this.burst(drop.x,drop.y,MATERIALS[drop.material].color,5)}
  checkUpgrade(){if(!['playing','lab'].includes(this.state)||this.xp<this.needed)return;this.upgradeReturn=this.state;let pool=Object.keys(ABILITIES).filter(id=>{const d=ABILITIES[id];return !d.max||this.abilities[d.stat]<d.max-1e-8});for(let i=pool.length-1;i>0;i--){let j=Math.floor(this.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}this.upgradeChoices=pool.slice(0,3);this.state='upgrade';this.events.push('level')}
  chooseAbility(id){if(this.state!=='upgrade'||!this.upgradeChoices.includes(id)||!ABILITIES[id])return false;const d=ABILITIES[id];this.abilities[d.stat]=Math.min(d.max??Infinity,this.abilities[d.stat]+d.step);if(id==='health')this.hp=Math.min(this.abilities.maxHp,this.hp+d.step);this.xp-=this.needed;this.level++;this.upgradeChoices=[];this.state=this.upgradeReturn;this.checkUpgrade();return true}
- spawnEnemy(type,x,y,extra={}){const d=ENEMY_TYPES[type];if(!d||this.enemies.filter(e=>e.hp>0).length>=100&&type!==4)return null;const e={id:this.nextId++,x,y,type,hp:d.hp,maxHp:d.hp,r:d.r,speed:d.speed+(this.wave-1)*10,burn:0,burnDps:0,flash:0,age:0,summon:4,phase:1,...extra};this.enemies.push(e);if(type===4){this.bossSpawned=true;this.events.push('boss')}return e}
+ spawnEnemy(type,x,y,extra={}){const d=ENEMY_TYPES[type];if(!d||this.enemies.filter(e=>e.hp>0).length>=100&&type!==4)return null;const e={id:this.nextId++,x,y,type,hp:d.hp,maxHp:d.hp,r:d.r,speed:d.speed+(this.wave-1)*10,burn:0,burnDps:0,flash:0,age:0,summon:4,phase:1,skillTimer:2.5,skillIndex:0,...extra};const scale=waveScaling(this.wave);e.hp=Math.round((extra.hp??d.hp)*scale.health);e.maxHp=Math.round((extra.maxHp??d.hp)*scale.health);e.damage=Number(((extra.damage??d.damage)*scale.damage).toFixed(1));this.enemies.push(e);if(type===4){this.bossSpawned=true;this.events.push('boss')}return e}
  hurt(damage){if(this.inv>0)return;this.hp=Math.max(0,this.hp-damage*(1-this.abilities.defense));this.inv=.8;this.events.push('hurt');this.burst(this.x,this.y,'#ed878a',12)}
  hit(enemy,damage,burn=false){if(enemy.hp<=0)return;let dealt=Math.min(enemy.hp,damage);enemy.hp-=damage;enemy.flash=.08;this.damageDone+=dealt;if(burn)this.burnDamage+=dealt;this.texts.push({x:enemy.x,y:enemy.y-22,value:burn?dealt.toFixed(0):Math.round(damage),color:burn?'#bdcaff':'#f4e8c4',life:.55});if(enemy.hp>0)return;this.kills++;
  const d=ENEMY_TYPES[enemy.type]||ENEMY_TYPES[0],value=enemy.child?1:d.diamonds;this.drops.push({kind:'diamond',value,x:enemy.x-9,y:enemy.y});
  if(this.random()<DROP_RATES[this.dropMode]){const material=['water','hydrogen','oxygen'][Math.floor(this.random()*3)];this.drops.push({kind:'substance',x:enemy.x+10,y:enemy.y,material})}
  if(enemy.type===3&&!enemy.child){for(const dx of [-20,20])this.spawnEnemy(3,enemy.x+dx,enemy.y,{child:true,hp:16,maxHp:16,r:12,speed:85})}
  if(enemy.type===4)this.bossDefeated=true;this.burst(enemy.x,enemy.y,enemy.type===1?'#d69fa9':'#c6dd90',12);this.events.push('kill')}
- endWave(){for(const d of this.drops)this.collect(d);this.drops=[];this.enemies=[];this.bullets=[];this.particles=[];this.texts=[];if(this.wave===2){this.state='won';return}const minimum=this.dropMode==='high'?{water:4,hydrogen:6,oxygen:3}:{water:1,hydrogen:2,oxygen:1};for(const id of Object.keys(minimum)){this.supply[id]=Math.max(0,minimum[id]-this.lab.inventory[id]);this.lab.inventory[id]+=this.supply[id]}this.state='lab';this.checkUpgrade()}
+ castBossSkill(boss){
+  const index=boss.skillIndex||0,phase=boss.phase||1;boss.skillIndex=index+1;
+  if(index%2===0){const gapAngle=Math.atan2(this.y-boss.y,this.x-boss.x)+Math.PI/2;for(let i=0;i<(phase===3?2:1);i++){const warning=DIFFICULTY.ringWarning+i*.8,speed=150+phase*10;this.hazards.push({type:'ring',sourceId:boss.id,x:boss.x,y:boss.y,elapsed:0,warning,life:warning+520/speed,radius:0,width:12,speed,maxRadius:520,gapAngle,gapHalfAngle:DIFFICULTY.ringGapHalfAngle,damage:boss.damage*1.1,hit:false})}this.events.push('bossRing')}
+  else{const offsets=phase===1?[0]:phase===2?[-70,70]:[-100,0,100];for(const offset of offsets){this.hazards.push({type:'zone',sourceId:boss.id,x:Math.max(90,Math.min(1110,this.x+offset)),y:Math.max(90,Math.min(710,this.y)),elapsed:0,warning:DIFFICULTY.zoneWarning,life:DIFFICULTY.zoneWarning+.8,radius:65,damage:boss.damage*1.3,hit:false})}this.events.push('bossZone')}
+  this.hazards=this.hazards.slice(-24);
+ }
+ updateHazards(dt){
+  this.hazards=this.hazards.filter(h=>this.enemies.some(e=>e.id===h.sourceId&&e.hp>0));
+  for(const h of this.hazards){const before=h.elapsed;h.elapsed+=dt;if(h.elapsed<h.warning||before>=h.life||h.hit)continue;const distance=Math.hypot(this.x-h.x,this.y-h.y);let intersects=false;
+   if(h.type==='zone')intersects=distance<h.radius+18;
+   else{const oldRadius=Math.max(0,(before-h.warning)*h.speed),radius=Math.min(h.maxRadius,Math.max(0,(h.elapsed-h.warning)*h.speed));h.radius=radius;const angle=Math.atan2(this.y-h.y,this.x-h.x),difference=Math.abs(Math.atan2(Math.sin(angle-h.gapAngle),Math.cos(angle-h.gapAngle)));intersects=distance>=oldRadius-h.width/2-18&&distance<=radius+h.width/2+18&&difference>h.gapHalfAngle}
+   if(intersects){this.hurt(h.damage);h.hit=true}
+  }
+  this.hazards=this.hazards.filter(h=>h.elapsed<h.life);
+ }
+ endWave(){for(const d of this.drops)this.collect(d);this.drops=[];this.enemies=[];this.hazards=[];this.bullets=[];this.particles=[];this.texts=[];if(this.wave===2){this.state='won';return}const minimum=this.dropMode==='high'?{water:4,hydrogen:6,oxygen:3}:{water:1,hydrogen:2,oxygen:1};for(const id of Object.keys(minimum)){this.supply[id]=Math.max(0,minimum[id]-this.lab.inventory[id]);this.lab.inventory[id]+=this.supply[id]}this.state='lab';this.checkUpgrade()}
  step(dt,input={}){
   if(this.state!=='playing')return;dt=Math.min(.1,Math.max(0,dt));this.events=[];if(this.hp<=0){this.state='dead';return}
   this.elapsed+=dt;this.waveTime=Math.min(60,this.waveTime+dt);if(this.waveTime>=60-1e-8&&(this.wave===1||this.bossDefeated)){this.endWave();return}
@@ -44,12 +59,13 @@ export class Run{
   if(this.spawn<=0&&this.waveTime<60&&this.enemies.length<95){let a=this.random()*Math.PI*2,type=this.spawnCount<4?this.spawnCount:Math.floor(this.random()*4);this.spawnCount++;this.spawnEnemy(type,600+Math.cos(a)*740,400+Math.sin(a)*550);this.spawn=Math.max(.35,(this.wave===1?1.05:.8)-this.waveTime*.002)}
   const stats=this.stats,targets=this.enemies.filter(e=>e.hp>0&&visibleInCombat(e,bounds));if(this.shot<=0&&targets.length){let e=targets.reduce((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)<Math.hypot(b.x-this.x,b.y-this.y)?a:b);let dist=Math.hypot(e.x-this.x,e.y-this.y);this.angle=Math.atan2(e.y-this.y,e.x-this.x);if(dist<660){this.bullets.push({x:this.x+Math.cos(this.angle)*22,y:this.y+Math.sin(this.angle)*22,vx:Math.cos(this.angle)*600,vy:Math.sin(this.angle)*600,life:1.25,type:this.lab.gun.type,stats});this.shot=stats.interval;this.events.push('shot')}}
   for(const e of [...this.enemies]){if(e.hp<=0)continue;const def=ENEMY_TYPES[e.type]||ENEMY_TYPES[0];e.age=(e.age||0)+dt;let dx=this.x-e.x,dy=this.y-e.y,d=Math.hypot(dx,dy)||1;const dash=e.type===1&&e.age%3<.5?1.9:1;e.dashing=dash>1;e.x+=dx/d*e.speed*dt*dash;e.y+=dy/d*e.speed*dt*dash;e.flash=Math.max(0,(e.flash||0)-dt);
-   if(e.type===4){const phase=e.hp/e.maxHp>.65?1:e.hp/e.maxHp>.3?2:3;if(phase!==e.phase){e.phase=phase;e.summon=0}e.summon-=dt;if(e.summon<=0){const type=e.phase===1?0:e.phase===2?1:3;for(const offset of [-50,50])this.spawnEnemy(type,e.x+offset,e.y+40);e.summon=6-e.phase}}
+   if(e.type===4){const phase=e.hp/e.maxHp>.65?1:e.hp/e.maxHp>.3?2:3;if(phase!==e.phase){e.phase=phase;e.summon=0;e.skillTimer=Math.min(e.skillTimer,.9);if(phase===3)this.events.push('overdrive')}e.summon-=dt;if(e.summon<=0){const type=e.phase===1?0:e.phase===2?1:3;for(const offset of [-50,50])this.spawnEnemy(type,e.x+offset,e.y+40);e.summon=6-e.phase}e.skillTimer-=dt;if(e.skillTimer<=0){this.castBossSkill(e);e.skillTimer=8-e.phase*1.2}}
    if(e.burn>0){this.hit(e,e.burnDps*Math.min(dt,e.burn),true);e.burn=Math.max(0,e.burn-dt)}
-   const range=e.type===0?90:e.r+18;if(e.hp>0&&visibleInCombat(e,bounds)&&d<range)this.hurt(def.damage);
+   const range=e.type===0?90:e.r+18;if(e.hp>0&&visibleInCombat(e,bounds)&&d<range)this.hurt(e.damage??def.damage);
   }
   for(const b of this.bullets){let ox=b.x,oy=b.y;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;for(const e of this.enemies){let dx=b.x-ox,dy=b.y-oy,t=Math.max(0,Math.min(1,((e.x-ox)*dx+(e.y-oy)*dy)/(dx*dx+dy*dy||1)));if(e.hp>0&&visibleInCombat(e,bounds)&&b.life>0&&Math.hypot(e.x-(ox+t*dx),e.y-(oy+t*dy))<e.r+6){const critical=b.stats.crit>0&&this.random()<b.stats.crit;this.hit(e,b.stats.damage*(critical?2:1));if(e.hp>0&&b.type==='flame'){e.burn=b.stats.burnTime;e.burnDps=b.stats.burnDps;this.burnHits++}this.burst(b.x,b.y,b.type==='water'?'#77d9f5':b.type==='flame'?'#aebcff':'#e4d8a6',6);b.life=0;break}}}
   this.enemies=this.enemies.filter(e=>e.hp>0);this.bullets=this.bullets.filter(b=>b.life>0&&b.x>=bounds.left&&b.x<=bounds.right&&b.y>=bounds.top&&b.y<=bounds.bottom);
+  this.updateHazards(dt);
   this.drops=this.drops.filter(drop=>{let dx=this.x-drop.x,dy=this.y-drop.y,n=Math.hypot(dx,dy);if(n<this.abilities.magnet){let s=Math.min(n,460*dt);drop.x+=dx/(n||1)*s;drop.y+=dy/(n||1)*s}if(n<24){this.collect(drop);return false}return true});
   for(const p of this.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}this.particles=this.particles.filter(p=>p.life>0).slice(-350);for(const t of this.texts){t.y-=27*dt;t.life-=dt}this.texts=this.texts.filter(t=>t.life>0).slice(-90);if(this.hp<=0)this.state='dead';else this.checkUpgrade();
  }
