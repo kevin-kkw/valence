@@ -208,3 +208,10 @@ Sites 原来的源码托管是服务管理的独立 Git 仓库，与 `kevin-kkw/
 ## 可复制给新 session 的开场提示
 
 > 请接手 kevin-kkw/valence。先读 AGENTS.md 和 HANDOFF.md，检查现有代码与测试，简要复述当前状态。已有土豆突围 Demo 在 demos/potato-survivors，可运行且已单独发布；化学游戏的旧讨论尚未导入。请沿用一次问一个关键问题的讨论方式，先根据我接下来提供的材料确认目标，不要自行假设已经有完整设计。
+
+
+## 2026-11-12 配方路线独立演示
+
+已添加 `/recipe-demo.html`，主菜单有入口。演示“Fe 直接装铁弹枪”与“Fe + 2HCl → FeCl₂ + H₂↑，制氢再装氢燃烧枪”的库存取舍，副产物保留；另有点燃 C + O₂ → CO₂ 路线。使用独立库存和草案装配成本，主游戏六枪配方、战斗与掉落池未迁移。新增 C、FeCl₂ 仅在演示页。源码与说明在 `prototypes/valence-chain-lab/`。模型测试和 DOM/canvas mock 通过，尚未真实浏览器视觉验证。
+
+演示：https://valence-chain-lab.goodcamel13.chatgpt.site/recipe-demo.html

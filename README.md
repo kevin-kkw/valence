@@ -62,3 +62,6 @@ npm run check
 ## 部署
 
 GitHub用于保存和继续开发，尚未配置自动部署。两个原型各自保留独立的 `.openai/hosting.json`；后续发布以对应子目录为项目根目录，复用各自Site，不混用ID。推送GitHub不会自动更新线上网站。
+
+
+配方路线概念演示：[打开互动演示](https://valence-chain-lab.goodcamel13.chatgpt.site/recipe-demo.html)，独立库存，展示材料制备与装配的分支取舍。
