@@ -4,7 +4,7 @@
 
 https://kevin-wang.com/games/valence/
 
-源码仍在本仓库 `prototypes/valence-chain-lab/`。网站仓库只保存独立静态发布快照与校验测试，不把 Hugo 主题/文章和游戏源码混在一起。当前快照为V3.15，游戏源码提交 `906e141284eecd278b806ae9d03600290e5d4675`。
+源码仍在本仓库 `prototypes/valence-chain-lab/`。网站仓库只保存独立静态发布快照与校验测试，不把 Hugo 主题/文章和游戏源码混在一起。V3.16加入配件成长；每次发布的源码提交以网站快照release.json为准。
 
 ## 更新快照
 
@@ -20,7 +20,7 @@ python scripts/export-hugo.py /tmp/valence-next --source-commit <游戏源码Git
 python3 -m unittest discover -s tests -v
 ```
 
-导出包含入口HTML、13个JS模块、CSS与release.json，不含Sites身份配置、旧配方/配件独立试验页、凭据或聊天记录。依赖模块按内容指纹重写引用为`.js`，CSS同样加指纹。release.json保存源码仓库/提交、版本与文件SHA-256。新增资源或模块后导出会自动跟随主入口依赖；若引入循环模块依赖需升级打包方式。
+导出包含入口HTML、14个JS模块、CSS与release.json，不含Sites身份配置、旧配方/配件独立试验页、凭据或聊天记录。依赖模块按内容指纹重写引用为`.js`，CSS同样加指纹。release.json保存源码仓库/提交、版本与文件SHA-256。新增资源或模块后导出会自动跟随主入口依赖；若引入循环模块依赖需升级打包方式。
 
 网站的main推送触发既有Actions：部署工具测试、同步主题、Hugo生产构建、上传VM、激活发布与HTTPS标记检查；游戏无需后端，不依赖Sites。网站导航/文章与服务器配置保持现有设置，用户直接访问游戏路径。
 
