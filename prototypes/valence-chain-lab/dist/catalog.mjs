@@ -22,7 +22,7 @@ export function atomTotals(stock){let out={H:0,O:0};for(const [id,n]of Object.en
 export const DROP_RATES=Object.freeze({standard:.18,high:.75});
 export const BASE_ABILITIES=Object.freeze({maxHp:100,damage:18,attackSpeed:1,defense:0,speed:225,magnet:125,regen:0,crit:0});
 export const ABILITIES=Object.freeze({
- health:{name:'更强体魄',stat:'maxHp',step:20,unit:'',description:'最大生命 +20，并恢复20生命',icon:'♥'},
+ health:{name:'更强体魄',stat:'maxHp',step:20,unit:'',description:'生命上限增加20，当前生命只恢复20点',icon:'♥'},
  rate:{name:'快速装填',stat:'attackSpeed',step:.12,unit:'×',description:'全枪型基础攻速加成 +12%',icon:'ϟ'},
  damage:{name:'精准打击',stat:'damage',step:3,unit:'',description:'基础伤害 +3（枪型系数另计）',icon:'✴'},
  defense:{name:'防护涂层',stat:'defense',step:.05,max:.6,unit:'%',description:'受到伤害减少5个百分点',icon:'⬡'},
