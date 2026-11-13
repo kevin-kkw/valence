@@ -125,3 +125,7 @@ Lv.1参数：酸液射程340/间隔0.55s，气压190/0.70s，电弧250/0.65s（�
 ### V3 试玩更新
 
 每关新增怪物与更高密度；精英继承当关新怪的强化行为；机械配件卡和角色能力卡区分；火环驻场5秒；扣血/回血小飘字；枪上限10级；出实验室回装备页。最终Boss重做为束缚核心/双生裂变/熵灭化身，击败立即通关。装备试验可选枪等级，方便直接体验最终关。
+
+## Hugo 网站发布
+
+游戏可由 `scripts/export-hugo.py` 导出为带内容指纹的静态JS/CSS快照，放入 `kevin-kkw/kevin-wang.com` 的 `mainsite/static/games/valence/`。在线路径为 https://kevin-wang.com/games/valence/ ，不依赖Sites。具体更新方法与校验见 [Hugo发布说明](docs/hugo-deployment.md)。

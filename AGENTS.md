@@ -22,3 +22,6 @@
 
 
 - V3.8覆盖旧医疗待定：无关间免费回血，实验室黑店消耗本关数+2份手选背包物资补5HP，不自动吃升级/炉内物资。枪表见 docs/weapons.md（酸枪已加强）。金属冲刺怪含精英撞伤后硬直2秒再恢复持续冲刺，不能继续贴身连伤。
+
+
+- 已经用户授权上线Hugo主站：公开URL https://kevin-wang.com/games/valence/，网站repo kevin-kkw/kevin-wang.com 下 mainsite/static/games/valence/。使用scripts/export-hugo.py导出带指纹的静态发布，更新流程见docs/hugo-deployment.md。Hugo GitHub Actions与旧Sites完全独立；不要混用身份。线上更新需同步网站快照并核对CI，单改本repo不等于上线。

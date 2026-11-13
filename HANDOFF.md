@@ -349,3 +349,12 @@ Sites 原来的源码托管是服务管理的独立 Git 仓库，与 `kevin-kkw/
 ## V3.15 结算界面与配色区分
 
 成功：金+薄荷绿、奖杯、全关打勾、通关战果和最终装备；失败：暗红+灰、破裂烧瓶、止步关卡/失败进度、Boss剩余血量（存在时）和重试。统计/装备都保留，但主题/图形/按钮/标题不同，重开和菜单移除主题。小窗口内部滚动、减动态支持。UI mock与全套检查通过，真实浏览器视觉未验收。本地 /workspace/valence/artifacts/VALENCE-ten-waves-v3.15.html，不发布Sites。
+
+
+## Hugo主站正式上线（替代仅本地试玩）
+
+用户明确授权把游戏放进 kevin-kkw/kevin-wang.com 的 mainsite。已发布V3.15到 mainsite/static/games/valence/，公开入口 https://kevin-wang.com/games/valence/ 。网站提交129d6dc3f8473410e04788c39f8a1e9c87b1c1f0，Actions https://github.com/kevin-kkw/kevin-wang.com/actions/runs/43375975754 已success（测试/Hugo构建/VM激活/HTTPS检查）。curl实际页面200、版本3.15；线上页面+13模块+CSS共15文件哈希全部匹配，JS MIME正确，入口cache-control no-cache。真实浏览器视觉未验收。
+
+网站保存独立静态快照（16文件含release.json，约175KB），使用内容指纹.js/CSS，不依赖Sites/后端。游戏源码仍留在valence，新增 scripts/export-hugo.py 与 docs/hugo-deployment.md 说明更新：导出到空目录后完整替换网站静态目录，用网站测试核对再推main触发部署。网站新增 tests/test_valence_static.py 验证hash和引用，未改主题导航/个人归档/服务器或凭据。导出后实际指纹模块也跑过游戏UI mock。部署凭据完全由既有Actions处理，本会话未读取或保存秘密。
+
+此前“不发布Sites”仍适用，但本轮已明确授权Hugo网站发布；不要再因Sites凭据问题阻止这个独立Hugo发布路径。后续游戏更新若需上线，必须同步Hugo快照并等待网站CI，不能把只改valence当作已更新公开页面。
