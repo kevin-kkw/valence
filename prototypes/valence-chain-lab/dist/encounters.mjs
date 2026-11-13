@@ -2,7 +2,7 @@ import {visibleInCombat,ARENA_BOUNDS} from './view.mjs';
 export const WAVE_NEW_TYPES=[0,5,1,3,2,7,8,9,null,null];
 export const FORM_NAMES=['束缚核心','双生裂变','熵灭化身'];
 export function spawnPacing(wave){return {interval:Math.max(.27,1.1-(wave-1)*.09),batch:1+Math.floor((wave-1)/3),cap:Math.min(145,38+wave*10)}}
-export function shot(r,e,angle,speed=180,metal=false){r.enemyBullets.push({x:e.x,y:e.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,damage:e.damage*.8,metal,life:6})}
+export function shot(r,e,angle,speed=180,metal=false){r.enemyBullets.push({x:e.x,y:e.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,damage:e.damage*.8,metal,life:6,bossSkill:e.type===4||e.type===6})}
 export function updateIon(r,e,dt,bounds){
  if(!visibleInCombat(e,bounds))return;
  if(e.ionWindup>0){e.ionWindup=Math.max(0,e.ionWindup-dt);if(e.ionWindup===0){const spread=[-.38,0,.38];if(r.enemyBullets.filter(b=>b.ion&&b.life>0).length+spread.length>16){e.ionCooldown=.6;return}for(const offset of spread){shot(r,e,e.ionAim+offset,130,false);const b=r.enemyBullets.at(-1);b.ion=true;b.life=2.6}e.ionCooldown=e.elite?2.8:3.6}return}
@@ -29,6 +29,7 @@ export function updateFinalBoss(r,e,dt,bounds){
  if(phase!==e.phase){e.phase=phase;e.skillTimer=1.3;e.phaseGrace=1.2;e.r=phase===3?65:phase===2?54:48;r.hazards=r.hazards.filter(h=>h.sourceId!==e.id);r.enemyBullets=[];r.events.push('finalTransform');r.burst(e.x,e.y,phase===3?'#ff719b':'#d4aaff',35)}
  e.phaseGrace=Math.max(0,(e.phaseGrace||0)-dt);e.orbit=(e.orbit||0)+dt;e.skillTimer-=dt;e.volleyClock=(e.volleyClock??2)-dt;
  if(e.dashWarning>0){e.dashWarning-=dt;if(e.dashWarning<=0){e.dashTime=.45;const a=Math.atan2(e.dashTarget.y-e.y,e.dashTarget.x-e.x);e.dashAngle=a}}
+ e.dashAttacking=e.dashTime>0;
  if(e.dashTime>0){e.dashTime-=dt;e.x=Math.max(ARENA_BOUNDS.left+e.r,Math.min(ARENA_BOUNDS.right-e.r,e.x+Math.cos(e.dashAngle)*530*dt));e.y=Math.max(ARENA_BOUNDS.top+e.r,Math.min(ARENA_BOUNDS.bottom-e.r,e.y+Math.sin(e.dashAngle)*530*dt))}
  if(e.phaseGrace>0||!visibleInCombat(e,bounds))return;
  if(e.volleyClock<=0){if(phase===1){const a=Math.atan2(r.y-e.y,r.x-e.x);for(const o of [-.42,-.21,0,.21,.42])shot(r,e,a+o,170)}else{const count=phase===2?12:18;for(let i=0;i<count;i++){if(i%6===0)continue;shot(r,e,e.orbit*.9+i*Math.PI*2/count,phase===3?190:150)}}e.volleyClock=phase===1?3:phase===2?2.6:1.9}

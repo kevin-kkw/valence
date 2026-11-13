@@ -20,7 +20,7 @@ export const RECIPES=Object.freeze({
 export const emptyStock=()=>Object.fromEntries(Object.keys(MATERIALS).map(id=>[id,0]));
 export function atomTotals(stock){let out={H:0,O:0};for(const [id,n]of Object.entries(stock))for(const [a,v]of Object.entries(MATERIALS[id]?.atoms||{}))out[a]=(out[a]||0)+n*v;return out}
 export const DROP_RATES=Object.freeze({standard:.18,high:.75});
-export const BASE_ABILITIES=Object.freeze({maxHp:100,damage:18,attackSpeed:1,defense:0,speed:225,magnet:125,regen:0,crit:0});
+export const BASE_ABILITIES=Object.freeze({maxHp:100,damage:18,attackSpeed:1,defense:0,speed:225,magnet:125,regen:0,crit:0,dodge:0});
 export const ABILITIES=Object.freeze({
  health:{name:'更强体魄',stat:'maxHp',step:20,unit:'',description:'生命上限增加20，当前生命只恢复20点',icon:'♥'},
  rate:{name:'快速装填',stat:'attackSpeed',step:.12,unit:'×',description:'主枪攻速 +12%；配件蓄力加快（有上限）',icon:'ϟ'},
@@ -29,6 +29,7 @@ export const ABILITIES=Object.freeze({
  speed:{name:'轻盈步伐',stat:'speed',step:15,unit:'',description:'移动速度 +15',icon:'➜'},
  magnet:{name:'收集力场',stat:'magnet',step:25,unit:'',description:'拾取范围 +25',icon:'◇'},
  regen:{name:'自我修复',stat:'regen',step:.5,unit:'/s',description:'每秒恢复生命 +0.5',icon:'✚'},
+ dodge:{name:'灵敏反应',stat:'dodge',step:.05,max:.4,unit:'%',description:'闪避率 +5个百分点，上限40%；无法闪避Boss技能',icon:'◈'},
  crit:{name:'弱点洞察',stat:'crit',step:.08,max:.8,unit:'%',description:'直接命中暴击率 +8%，暴击伤害2倍',icon:'⌖'}
 });
 export const ENEMY_TYPES=Object.freeze([
