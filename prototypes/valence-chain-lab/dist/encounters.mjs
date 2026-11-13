@@ -1,5 +1,5 @@
 import {visibleInCombat,ARENA_BOUNDS} from './view.mjs';
-export const WAVE_NEW_TYPES=[0,5,1,3,2,7,8,9,10,11];
+export const WAVE_NEW_TYPES=[0,5,1,3,2,7,8,9,null,null];
 export const FORM_NAMES=['束缚核心','双生裂变','熵灭化身'];
 export function spawnPacing(wave){return {interval:Math.max(.27,1.1-(wave-1)*.09),batch:1+Math.floor((wave-1)/3),cap:Math.min(145,38+wave*10)}}
 export function shot(r,e,angle,speed=180,metal=false){r.enemyBullets.push({x:e.x,y:e.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,damage:e.damage*.8,metal,life:6})}
