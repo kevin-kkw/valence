@@ -2,7 +2,7 @@ import {visibleInCombat,ARENA_BOUNDS} from './view.mjs';
 export const ACCESSORIES=Object.freeze({
  condenser:{name:'冷凝水包',gun:'flame',description:'收集燃烧产水，满后侧后方喷水，边喷边补。',science:'氢氧燃烧生成水；冷凝与喷水由机械结构完成。'},
  heat:{name:'余热护环',gun:'flame',description:'喷火积热，在脚下留下持续燃烧5秒的驻场火环。',science:'利用燃烧放出的热量，护环为游戏机械结构。'},
- conductive:{name:'电源模块',gun:'water',description:'主水流积蓄电荷，周期性连锁电击。',science:'电能来自电源，含离子的水作导电介质。'},
+ conductive:{name:'电源模块',gun:'water',description:'水流命中后触发闪电链，最多跳跃3个目标。',science:'电能来自电源，含离子的水作导电介质。'},
  freeze:{name:'制冷模块',gun:'water',description:'主水流积蓄冷量，周期性冰击并减速。',science:'制冷结构使部分水凝固，冻结效果为游戏化处理。'},
  foam:{name:'泡沫反应包',gun:'acid',description:'酸液反应积气，投出持续减速泡沫区。',science:'酸与碳酸氢钠反应产CO₂，额外介质稳定泡沫。'},
  hydrogen:{name:'铁粒反应包',gun:'acid',description:'分流酸液制氢，蓄满后追加短促燃烧。',science:'Fe + 2HCl → FeCl₂ + H₂；配件自带供氧与点火结构。'},
@@ -20,7 +20,7 @@ export function updateAccessories(r,dt,bounds){
  const slots=r.attachments,gun=r.lab.gun.type;const active=id=>slots.includes(id)&&ACCESSORIES[id].gun===gun;const firing=r.events.includes('shot')||r.weaponEffects.some(e=>e.type===gun&&e.life>0);r.condenser.equipped=active('condenser');r.condenser.step(dt,r,bounds);
  for(const z of r.accessoryZones){z.life-=dt;if(z.kind==='heat')for(const e of r.enemies){if(e.hp>0&&visibleInCombat(e,bounds)&&Math.abs(Math.hypot(e.x-z.x,e.y-z.y)-z.radius)<e.r+24)r.hit(e,16*dt,true)}if(z.kind==='foam')for(const e of r.enemies)if(Math.hypot(e.x-z.x,e.y-z.y)<z.radius+e.r){e.slow=1.5;e.slowFactor=.45}}
  r.accessoryZones=r.accessoryZones.filter(z=>z.life>0);r.accessoryFx=r.accessoryFx.filter(z=>(z.life-=dt)>0);r.magneticTime=Math.max(0,r.magneticTime-dt);
- for(const id of slots){if(!active(id)||id==='condenser'||id==='rail')continue;let rate=firing?1:0;if(['conductive','freeze','foam','hydrogen','capacitor','magnetic','shards'].includes(id))rate=r.events.includes('shot')?Math.max(.2,r.stats.interval)/dt:0;r.accessoryCharge[id]=(r.accessoryCharge[id]||0)+dt*rate/5;if(r.accessoryCharge[id]<1)continue;r.accessoryCharge[id]=0;
+ for(const id of slots){if(id==='conductive'){if(active(id))r.accessoryCharge[id]=Math.max(0,Math.min(1,1-((r.waterChainReady||0)-r.elapsed)/.9));continue}if(!active(id)||id==='condenser'||id==='rail')continue;let rate=firing?1:0;if(['conductive','freeze','foam','hydrogen','capacitor','magnetic','shards'].includes(id))rate=r.events.includes('shot')?Math.max(.2,r.stats.interval)/dt:0;r.accessoryCharge[id]=(r.accessoryCharge[id]||0)+dt*rate/5;if(r.accessoryCharge[id]<1)continue;r.accessoryCharge[id]=0;
  const targets=r.enemies.filter(e=>e.hp>0&&visibleInCombat(e,bounds)).sort((a,b)=>Math.hypot(a.x-r.x,a.y-r.y)-Math.hypot(b.x-r.x,b.y-r.y)),target=targets[0];
  if(id==='magnetic'){r.magneticTime=3;r.accessoryFx.push({kind:'magnetic',x:r.x,y:r.y,radius:105,life:3});continue}
  if(id==='heat'){r.accessoryZones.push({kind:'heat',x:r.x,y:r.y,radius:120,life:5});continue}
@@ -31,4 +31,11 @@ export function updateAccessories(r,dt,bounds){
  if(['conductive','capacitor'].includes(id)&&chosen.length)r.weaponEffects.push({type:'electric',nodes:[{x:r.x,y:r.y},...chosen.map(e=>({x:e.x,y:e.y}))],life:.25,duration:.25});
  }
  r.accessoryZones=r.accessoryZones.slice(-8);r.accessoryFx=r.accessoryFx.slice(-16);
+}
+
+export function triggerWaterChain(r,first,bounds){
+ if(r.legacy||r.lab.gun.type!=='water'||!r.attachments.includes('conductive')||r.elapsed<(r.waterChainReady||0))return false;
+ r.waterChainReady=r.elapsed+.9;const used=new Set([first.id]),nodes=[{x:first.x-8,y:first.y-14},{x:first.x,y:first.y}];if(first.hp>0)r.hit(first,10);let previous=first;
+ for(let i=1;i<3;i++){const next=r.enemies.filter(e=>e.hp>0&&!used.has(e.id)&&visibleInCombat(e,bounds)&&Math.hypot(e.x-previous.x,e.y-previous.y)<=145).sort((a,b)=>Math.hypot(a.x-previous.x,a.y-previous.y)-Math.hypot(b.x-previous.x,b.y-previous.y))[0];if(!next)break;used.add(next.id);nodes.push({x:next.x,y:next.y});r.hit(next,10*.8**i);previous=next}
+ r.weaponEffects.push({type:'electric',source:'conductive',nodes,life:.42,duration:.42});r.accessoryCharge.conductive=0;return true;
 }

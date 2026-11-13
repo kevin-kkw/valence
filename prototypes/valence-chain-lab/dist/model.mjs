@@ -1,5 +1,5 @@
 import {WAVE_NEW_TYPES,spawnPacing,updateNewMonster,updateFinalBoss} from './encounters.mjs';
-import {equipmentStats,updateAccessories} from './equipment.mjs';
+import {equipmentStats,updateAccessories,triggerWaterChain} from './equipment.mjs';
 import {WAVE_SECONDS,waveKind,specialSpawn,beginReward,chooseReward,updateRanged} from './campaign.mjs';
 import {Condenser} from './condenser.mjs';
 import {combatBounds,visibleInCombat,ARENA_BOUNDS} from './view.mjs';
@@ -21,7 +21,7 @@ export class Lab{
 }
 export class Run{
  constructor(random=Math.random){this.random=random;this.dropMode='standard';this.startingGun='water';this.reset()}
- reset(){Object.assign(this,{lab:new Lab(),condenser:new Condenser(),attachments:[],muzzle:null,accessoryCharge:{},accessoryZones:[],accessoryFx:[],enemyBullets:[],magneticTime:0,specialSpawned:false,specialDefeated:false,specialId:null,rewardTaken:false,rewardChoices:[],rewardKind:null,abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],weaponEffects:[],waterParticles:[],waterImpacts:[],waterEmissionCarry:0,waterStreamId:0,waterNextId:1,waterEmitting:false,waterMuzzle:null,waterLastAngle:0,enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0,healPending:0,healClock:0})}
+ reset(){Object.assign(this,{lab:new Lab(),condenser:new Condenser(),attachments:[],muzzle:null,accessoryCharge:{},accessoryZones:[],accessoryFx:[],enemyBullets:[],magneticTime:0,specialSpawned:false,specialDefeated:false,specialId:null,rewardTaken:false,rewardChoices:[],rewardKind:null,abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],weaponEffects:[],waterParticles:[],waterImpacts:[],waterEmissionCarry:0,waterStreamId:0,waterNextId:1,waterEmitting:false,waterMuzzle:null,waterLastAngle:0,enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0,healPending:0,healClock:0,waterChainReady:0})}
  get needed(){return 8+(this.level-1)*5}
  get duration(){return this.legacy?60:WAVE_SECONDS[this.wave-1]}
  get stats(){return this.legacy?gunStats(this.lab.gun,this.abilities):equipmentStats(gunStats(this.lab.gun,this.abilities),this.lab.gun.type,this.attachments,this.muzzle)}
@@ -113,7 +113,7 @@ export class Run{
   for(const bullet of this.bullets){
    const ox=bullet.x,oy=bullet.y,speed=Math.hypot(bullet.vx,bullet.vy),travel=Math.min(speed*dt,bullet.remaining??Infinity),fraction=travel/(speed*dt||1);bullet.x+=bullet.vx*dt*fraction;bullet.y+=bullet.vy*dt*fraction;if(bullet.remaining!==undefined)bullet.remaining-=travel;bullet.life-=dt;bullet.hitIds??=[];bullet.piercesRemaining??=1;
    const dx=bullet.x-ox,dy=bullet.y-oy,candidates=this.enemies.filter(e=>e.hp>0&&visibleInCombat(e,bounds)&&!bullet.hitIds.includes(e.id)).map(e=>{const t=Math.max(0,Math.min(1,((e.x-ox)*dx+(e.y-oy)*dy)/(dx*dx+dy*dy||1)));return {enemy:e,t,distance:Math.hypot(e.x-(ox+t*dx),e.y-(oy+t*dy))}}).filter(h=>h.distance<h.enemy.r+(bullet.stats.radius||6)).sort((a,b)=>a.t-b.t);
-   for(const hit of candidates){if(bullet.life<=0)break;const e=hit.enemy,critical=bullet.stats.crit>0&&this.random()<bullet.stats.crit;bullet.hitIds.push(e.id);this.hit(e,bullet.stats.damage*(critical?2:1));
+   for(const hit of candidates){if(bullet.life<=0)break;const e=hit.enemy,critical=bullet.stats.crit>0&&this.random()<bullet.stats.crit;bullet.hitIds.push(e.id);this.hit(e,bullet.stats.damage*(critical?2:1));if(bullet.type==='water')triggerWaterChain(this,e,bounds);
     if(e.hp>0&&bullet.type==='acid'){e.corrosionStacks=Math.min(3,(e.corrosionStacks||0)+1);e.corrosionStrength=bullet.stats.corrosionStrength;e.corrosionTime=3}
     if(e.hp>0&&bullet.type==='flame'){e.burn=bullet.stats.burnTime;e.burnDps=bullet.stats.burnDps;this.burnHits++}
     if(bullet.type==='acid')this.weaponEffects.push({type:'acidSplash',x:e.x,y:e.y,radius:22,life:.22,duration:.22,born:this.elapsed});
