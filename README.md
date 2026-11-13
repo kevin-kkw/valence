@@ -71,3 +71,8 @@ GitHub用于保存和继续开发，尚未配置自动部署。两个原型各�
 
 
 最新试玩请直接进入 [VALENCE 原版主游戏](https://valence-chain-lab.goodcamel13.chatgpt.site/)，选择氢燃烧枪即可体验冷凝水包。配件已接入原界面、升级、实验室和 Boss 流程。
+
+
+### 发布状态（本次整合）
+
+配件整合代码和测试已完成并推送 GitHub，但现有线上主网址尚未更新。Sites 凭据工具返回 `Sites Git is not yet enabled for this client`，本客户端无法取得源码发布凭据，因而未执行保存/部署。不得把 GitHub 推送报告为上线。后续需在支持 Sites Git 的客户端继续将本地源码提交 73344831719498f3794440b05a1712758b51d6e4 推送到既有 Site，再打包部署；保持原 project_id 与 owner-private 访问范围。已提供环境本地单文件试玩 `/workspace/valence/artifacts/VALENCE-water-pack.html`，内嵌全部 CSS 和模块，尚未真实浏览器视觉验证。
