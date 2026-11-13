@@ -40,7 +40,7 @@ export const ENEMY_TYPES=Object.freeze([
  {id:'shooter',name:'磁性铁屑怪',hp:48,speed:28,r:17,diamonds:4,damage:12,behavior:'ranged',description:'停步蓄力，锁定方向发射可躲避金属弹'},
  {id:'core',name:'熵灭实验体',hp:2400,speed:24,r:48,diamonds:30,damage:24,behavior:'final',description:'三形态最终Boss：束缚核心、双生裂变、熵灭化身；击败即通关'},
  {id:'oxidizer',name:'氧化孢子',hp:48,speed:51,r:19,diamonds:3,damage:12,behavior:'mine',description:'预警后引爆玩家脚下的氧化区'},
- {id:'ion',name:'游离电离体',hp:62,speed:44,r:20,diamonds:4,damage:13,behavior:'fan',description:'停步蓄力锁定方向后发射慢速电荷弹；普通单发、精英三发'},
+ {id:'ion',name:'游离电离体',hp:62,speed:44,r:20,diamonds:4,damage:13,behavior:'fan',description:'普通停步预警后发射宽间隔三发慢弹；精英保持高速追击与强化散射'},
  {id:'polymer',name:'聚合猎群',hp:75,speed:64,r:22,diamonds:4,damage:14,behavior:'hunter',description:'短促扑袭，死亡释放两只幼体'},
  {id:'entropy',name:'熵蚀游魂',hp:80,speed:43,r:21,diamonds:5,damage:15,behavior:'teleport',description:'预警后闪现，在原地留下危险区'},
  {id:'radical',name:'自由基星簇',hp:90,speed:48,r:23,diamonds:5,damage:16,behavior:'radial',description:'周期性释放环形非金属弹'}
