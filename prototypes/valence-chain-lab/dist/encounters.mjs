@@ -3,8 +3,17 @@ export const WAVE_NEW_TYPES=[0,5,1,3,2,7,8,9,10,11];
 export const FORM_NAMES=['束缚核心','双生裂变','熵灭化身'];
 export function spawnPacing(wave){return {interval:Math.max(.27,1.1-(wave-1)*.09),batch:1+Math.floor((wave-1)/3),cap:Math.min(145,38+wave*10)}}
 export function shot(r,e,angle,speed=180,metal=false){r.enemyBullets.push({x:e.x,y:e.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,damage:e.damage*.8,metal,life:6})}
+export function updateIon(r,e,dt,bounds){
+ if(!visibleInCombat(e,bounds))return;
+ if(e.ionWindup>0){e.ionWindup=Math.max(0,e.ionWindup-dt);if(e.ionWindup===0){const spread=e.elite?[-.24,0,.24]:[0];if(r.enemyBullets.filter(b=>b.ion&&b.life>0).length+spread.length>16){e.ionCooldown=.6;return}for(const offset of spread){shot(r,e,e.ionAim+offset,130,false);const b=r.enemyBullets.at(-1);b.ion=true;b.life=2.6}e.ionCooldown=e.elite?2.8:3.6}return}
+ e.ionCooldown=(e.ionCooldown??1.6+(e.id%5)*.3)-dt;if(e.ionCooldown>0||Math.hypot(e.x-r.x,e.y-r.y)>360)return;
+ const aiming=r.enemies.filter(other=>other.type===8&&other.hp>0&&other.ionWindup>0&&visibleInCombat(other,bounds)).length;
+ if(aiming>=3||r.enemyBullets.filter(b=>b.ion&&b.life>0).length>=14){e.ionCooldown=.4;return}
+ e.ionAim=Math.atan2(r.y-e.y,r.x-e.x);e.ionWindup=e.elite?.8:1;e.ionWindupTotal=e.ionWindup;
+}
 export function updateNewMonster(r,e,dt,bounds){
  if(!visibleInCombat(e,bounds))return;
+ if(e.type===8){updateIon(r,e,dt,bounds);return}
  if(e.elite){e.elitePulse=(e.elitePulse??3)-dt;if(e.elitePulse<=0){const a=Math.atan2(r.y-e.y,r.x-e.x);for(const offset of [-.25,0,.25])shot(r,e,a+offset,200,e.type===1||e.type===2);e.elitePulse=2.3}}
  if(e.type<7||!visibleInCombat(e,bounds))return;e.attackClock=(e.attackClock??1.4)-dt;if(e.attackClock>0)return;e.attackClock=e.elite?1.1:2.6;
  const a=Math.atan2(r.y-e.y,r.x-e.x);
