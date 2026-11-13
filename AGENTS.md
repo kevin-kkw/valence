@@ -13,3 +13,6 @@
 - 当前VALENCE原型在 `prototypes/valence-chain-lab/`，开局免费选择六种化学枪、七种物资、单枪、同系增强/异系清零、两波60秒加走位Boss。修改前读其README，修改后执行其 `npm test` 和 `npm run check`。两个Site的manifest不能混用。
 
 - 当前扩展仅实现新枪射击/特效/配方，属性相克与减弱尚未实现；不要把酸液统一腐蚀状态当作已存在的材质克制表。新增装填/溶解/装配要与真实化学反应分开标注。
+
+
+- 最新目标覆盖旧两关描述：原界面本地十关30至120秒、精英3/5/7配件奖励、Boss9枪口奖励、最终Boss10；两配件槽+一枪口槽，六枪各两配件，四种通用枪口含分叉。详见 `prototypes/valence-chain-lab/docs/ten-wave-design.md`。用户明确暂不依赖Sites，不再尝试在线发布。旧两关只在显式legacy测试中保留。

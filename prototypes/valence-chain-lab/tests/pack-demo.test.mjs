@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {PackDemo,angleDiff} from '../dist/pack-demo-model.mjs';
-import {gunStats} from '../dist/model.mjs';
+import {gunStats} from './legacy-model.mjs';
 function quiet(){const d=new PackDemo(()=>.5);d.enemies=[];d.spawnClock=999;d.start();return d}
 function target(d,dx=100,id=90){const e={id,x:d.player.x+dx,y:d.player.y,hp:100000,maxHp:100000,r:17,speed:0,burn:0,hit:0};d.enemies.push(e);return e}
 function advance(d,s,input={}){for(let t=0;t<s;t+=.02)d.step(.02,input)}

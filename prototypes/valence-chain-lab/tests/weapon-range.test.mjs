@@ -1,4 +1,4 @@
-import {test} from 'node:test';import assert from 'node:assert/strict';import {Run,gunStats} from '../dist/model.mjs';
+import {test} from 'node:test';import assert from 'node:assert/strict';import {Run,gunStats} from './legacy-model.mjs';
 const target=(id,x,y)=>({id,x,y,hp:90,maxHp:90,r:16,speed:0,type:1,burn:0,flash:0});
 function run(type='water',level=1){let r=new Run(()=>.99);r.start('normal');r.spawn=100;r.lab.gun={type,level};return r}
 test('water level increases actual range; flame stays short and wide',()=>{let w1=gunStats({type:'water',level:1}),w5=gunStats({type:'water',level:5}),f1=gunStats({type:'flame',level:1});assert.ok(w5.range>w1.range);assert.ok(f1.range<w1.range);assert.ok(f1.halfAngle>.3)});

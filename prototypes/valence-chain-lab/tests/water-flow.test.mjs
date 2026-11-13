@@ -1,4 +1,4 @@
-import {test} from 'node:test';import assert from 'node:assert/strict';import {Run} from '../dist/model.mjs';
+import {test} from 'node:test';import assert from 'node:assert/strict';import {Run} from './legacy-model.mjs';
 const effect=await import('../dist/projectile-effects.mjs');
 function run(){const r=new Run(()=>.99);r.start('water');r.spawn=100;r.enemies=[{id:1,type:2,x:840,y:400,hp:999,maxHp:999,r:18,speed:0,burn:0,flash:0}];return r}
 test('water is emitted as many independent flowing samples, not anchored shot lines',()=>{const r=run();r.step(.04,{});assert.ok(r.waterParticles?.length>=2);const first={...r.waterParticles[0]};r.step(.04,{y:1});const moved=r.waterParticles.find(p=>p.id===first.id);assert.ok(moved.x>first.x);assert.equal(moved.y,first.y);assert.ok(r.y>400);assert.ok(r.waterParticles.some(p=>p.y>first.y))});

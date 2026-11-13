@@ -36,7 +36,9 @@ export const ENEMY_TYPES=Object.freeze([
  {id:'metal',name:'活泼金属小怪',hp:24,speed:95,r:13,diamonds:1,damage:9,behavior:'dash',description:'高速接近并短暂冲刺，生命较低'},
  {id:'crystal',name:'晶体甲壳兽',hp:90,speed:36,r:25,diamonds:5,damage:14,behavior:'shell',description:'厚血低速，半血后外壳破裂'},
  {id:'colloid',name:'胶体集群',hp:45,speed:57,r:22,diamonds:3,damage:8,behavior:'split',description:'击败后分裂成两个小型胶体'},
- {id:'reactor',name:'失控反应釜',hp:800,speed:28,r:44,diamonds:16,damage:22,behavior:'boss',description:'第二波出现；召唤样本、缺口冲击环、地面锁定爆发，低血过载'}
+ {id:'reactor',name:'失控反应釜',hp:800,speed:28,r:44,diamonds:16,damage:22,behavior:'boss',description:'第9关前哨Boss；召唤样本、缺口冲击环、地面锁定爆发，低血过载'},
+ {id:'shooter',name:'磁性铁屑怪',hp:48,speed:28,r:17,diamonds:4,damage:12,behavior:'ranged',description:'停步蓄力，锁定方向发射可躲避金属弹'},
+ {id:'core',name:'失控实验核心',hp:2400,speed:24,r:51,diamonds:30,damage:24,behavior:'boss',description:'最终Boss：缺口冲击、地面爆发、召唤与过载'}
 ]);
 export const DIFFICULTY=Object.freeze({healthPerWave:1.35,damagePerWave:1.2,bossHealth:800,ringWarning:1.2,zoneWarning:1.1,ringGapHalfAngle:.55});
 export function waveScaling(wave){const level=Math.max(0,Math.floor(wave)-1);return {health:DIFFICULTY.healthPerWave**level,damage:DIFFICULTY.damagePerWave**level}}

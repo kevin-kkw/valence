@@ -1,7 +1,7 @@
 import {emptyStock} from '../dist/catalog.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-const {Lab,Run,gunStats}=await import('../dist/model.mjs').catch(()=>({}));
+const {Lab,Run,gunStats}=await import('./legacy-model.mjs').catch(()=>({}));
 function lab(){const l=new Lab();l.inventory={...emptyStock(),water:8,hydrogen:8,oxygen:4};return l}
 function load(l,values){for(const [id,n] of Object.entries(values))for(let i=0;i<n;i++)assert.equal(l.moveMaterial(id,'furnace'),true)}
 test('model exists',()=>assert.equal(typeof Lab,'function'));

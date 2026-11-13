@@ -55,3 +55,5 @@
 }
 
 .condenser-panel{margin-top:14px;padding-top:12px;border-top:1px solid #8fae8d33}.condenser-panel .section-label{display:flex;justify-content:space-between}.condenser-track{height:7px;border-radius:7px;background:#2b4338;overflow:hidden;margin:8px 0}.condenser-track i{display:block;height:100%;width:0;background:#8bd3e3;transition:width .12s linear}.condenser-panel p{font-size:11px;line-height:1.6;min-height:34px}.condenser-panel button{font-size:11px}.condenser-panel button:disabled{opacity:.45;cursor:default}
+
+.equipment-slots{margin-top:12px}.gear-slot{border:1px solid #89a98a44;border-radius:8px;padding:9px;margin-top:7px}.gear-slot b{font-size:12px;display:block;color:#d6e8c5}.gear-slot small{font-size:10px;line-height:1.6;color:#a6bea7;display:block}.gear-slot details{font-size:10px;color:#afc3aa}.dialog-card label{display:block;margin:12px 0}.dialog-card select{width:100%;padding:9px;background:#20382e;color:#e1ebd4;border:1px solid #789a76;border-radius:6px}.screen-card:has(.ability-options){max-height:90%;overflow:auto}

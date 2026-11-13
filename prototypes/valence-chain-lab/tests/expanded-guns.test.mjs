@@ -1,4 +1,4 @@
-import {test} from 'node:test';import assert from 'node:assert/strict';import {Run,Lab,gunStats} from '../dist/model.mjs';import {RECIPES,MATERIALS,emptyStock,atomTotals} from '../dist/catalog.mjs';
+import {test} from 'node:test';import assert from 'node:assert/strict';import {Run,Lab,gunStats} from './legacy-model.mjs';import {RECIPES,MATERIALS,emptyStock,atomTotals} from '../dist/catalog.mjs';
 const extra=['acid','gas','electric','iron'];
 const enemy=(id,x,y,hp=500)=>({id,type:2,x,y,hp,maxHp:hp,r:16,speed:0,burn:0,flash:0});
 function run(type,level=1){const r=new Run(()=>.99);r.start(type);r.lab.gun={type,level};r.spawn=100;return r}

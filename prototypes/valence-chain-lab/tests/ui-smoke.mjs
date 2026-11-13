@@ -4,7 +4,7 @@ const context=new Proxy({createRadialGradient:()=>({addColorStop(){}})},{get:(o,
 function element(id){if(elements.has(id))return elements.get(id);const e={id,width:0,height:0,style:{},dataset:{},disabled:false,checked:true,textContent:'',innerHTML:'',classList:{values:new Set(['labView','dialogOverlay','toast','supplyNote'].includes(id)?['hidden']:[]),add(x){this.values.add(x)},remove(x){this.values.delete(x)},contains(x){return this.values.has(x)},toggle(x,b){if(b===undefined)b=!this.contains(x);b?this.add(x):this.remove(x)}},getContext:()=>context,getBoundingClientRect:()=>({width:900,height:610,left:0,top:0}),setAttribute(){},setPointerCapture(){},focus(){document.activeElement=e},addEventListener(n,f){events.set(`${id}:${n}`,f)},querySelector(){return element('fakeFocus')},querySelectorAll(){return [element('fakeFocus')]}};elements.set(id,e);return e}
 globalThis.document={getElementById:element,activeElement:null,hidden:false,addEventListener(n,f){events.set(`document:${n}`,f)}};
 globalThis.window={addEventListener(n,f){events.set(`window:${n}`,f)}};globalThis.requestAnimationFrame=f=>frames.push(f);globalThis.devicePixelRatio=1;
-const {run}=await import('../dist/app.mjs');
+const {run}=await import('../dist/app.mjs');run.legacy=true;
 let clock=performance.now();function tick(){clock+=50;frames.shift()(clock)}
 function click(id){assert.equal(element(id).disabled,false,id+' is disabled');element(id).onclick()}
 function emit(id,type,event){events.get(`${id}:${type}`)(event)}

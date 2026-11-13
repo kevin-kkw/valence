@@ -1,5 +1,5 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';
-import {Run,gunStats} from '../dist/model.mjs';
+import {Run,gunStats} from './legacy-model.mjs';
 const enemy=(type=0)=>({id:1,x:400,y:400,hp:1,maxHp:type?24:36,r:18,speed:0,type,burn:0,flash:0});
 test('every kill drops type-valued diamonds; substance drop is independent and rare',()=>{let r=new Run(()=>.99);r.start('normal');r.hit(enemy(0),18);assert.equal(r.drops.filter(d=>d.kind==='diamond').length,1);assert.equal(r.drops[0].value,2);assert.equal(r.drops.filter(d=>d.kind==='substance').length,0);r.hit(enemy(1),18);assert.equal(r.drops.filter(d=>d.kind==='diamond')[1].value,1)});
 test('high-drop test mode raises substance chance and persists restart without changing diamond rewards',()=>{let r=new Run(()=>.5);assert.equal(r.setDropMode('high'),true);r.start('normal');r.hit(enemy(),18);assert.equal(r.drops.filter(d=>d.kind==='substance').length,1);assert.equal(r.drops.find(d=>d.kind==='diamond').value,2);r.start('normal');assert.equal(r.dropMode,'high');assert.equal(r.setDropMode('standard'),false)});

@@ -1,4 +1,4 @@
-import {test} from 'node:test';import assert from 'node:assert/strict';import {Run} from '../dist/model.mjs';
+import {test} from 'node:test';import assert from 'node:assert/strict';import {Run} from './legacy-model.mjs';
 function setup(){const r=new Run(()=>.99);r.start('flame');r.spawn=999;return r}
 function enemy(r,x,id=1,hp=10000){const e={id,type:2,x,y:r.y,hp,maxHp:hp,r:18,speed:0,burn:0,flash:0,damage:0};r.enemies.push(e);return e}
 function advance(r,seconds){for(let t=0;t<seconds;t+=.02)r.step(.02,{})}
