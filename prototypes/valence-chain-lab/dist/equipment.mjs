@@ -17,12 +17,11 @@ export const ACCESSORIES=Object.freeze({
 export const MUZZLES=Object.freeze({focus:{name:'聚束枪口',description:'射程+35%，直接伤害+10%。'},spread:{name:'扩散枪口',description:'扩大攻击覆盖；电弧跳距+40%，目标数+1。'},rapid:{name:'连发枪口',description:'攻击间隔缩短25%，保持完整单发伤害。'},fork:{name:'分叉枪口',description:'双方向发射，每路完整伤害。'}});
 export function equipmentStats(base,gun,slots,muzzle){const s={...base};if(muzzle==='focus'){s.range*=1.35;s.damage*=1.1}if(muzzle==='spread'){s.halfAngle*=1.5;s.radius=13;s.chainRange*=1.4;s.chainCount+=1}if(muzzle==='rapid')s.interval*=.75;if(slots.includes('rail')&&gun==='iron'){s.projectileSpeed*=1.35;s.pierce+=1}return s}
 export function offerAccessories(gun,slots,random){const available=Object.keys(ACCESSORIES).filter(k=>!slots.includes(k));const own=available.filter(k=>ACCESSORIES[k].gun===gun),other=available.filter(k=>ACCESSORIES[k].gun!==gun);for(let i=other.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[other[i],other[j]]=[other[j],other[i]]}return [...own,...other].slice(0,3)}
-export function updateAccessories(r,dt,bounds){
+export function updateAccessories(r,dt,bounds,shared=true){
  const damageScale=accessoryDamageScale(r),rateScale=accessoryRateScale(r);
- const slots=r.attachments,gun=r.lab.gun.type;const active=id=>slots.includes(id)&&ACCESSORIES[id].gun===gun;const firing=r.events.includes('shot')||r.weaponEffects.some(e=>e.type===gun&&e.life>0);r.condenser.equipped=active('condenser');r.condenser.step(dt,r,bounds);
- for(const z of r.accessoryZones){z.life-=dt;if(z.kind==='heat')for(const e of r.enemies){if(e.hp>0&&visibleInCombat(e,bounds)&&Math.abs(Math.hypot(e.x-z.x,e.y-z.y)-z.radius)<e.r+24)r.hit(e,16*damageScale*dt,true)}if(z.kind==='foam')for(const e of r.enemies)if(Math.hypot(e.x-z.x,e.y-z.y)<z.radius+e.r){e.slow=1.5;e.slowFactor=.45}}
- r.accessoryZones=r.accessoryZones.filter(z=>z.life>0);r.accessoryFx=r.accessoryFx.filter(z=>(z.life-=dt)>0);r.magneticTime=Math.max(0,r.magneticTime-dt);
- for(const id of slots){if(id==='conductive'){if(active(id))r.accessoryCharge[id]=Math.max(0,Math.min(1,1-((r.waterChainReady||0)-r.elapsed)/waterChainCooldown(r)));continue}if(!active(id)||id==='condenser'||id==='rail')continue;let energy=firing?dt*rateScale:0;if(['conductive','freeze','foam','hydrogen','capacitor','magnetic','shards'].includes(id))energy=dt>0&&r.events.includes('shot')?r.stats.interval*rateScale:0;r.accessoryCharge[id]=(r.accessoryCharge[id]||0)+energy/5;if(r.accessoryCharge[id]<1)continue;r.accessoryCharge[id]=0;
+ const slots=r.attachments,gun=r.lab.gun.type;const active=id=>slots.includes(id)&&ACCESSORIES[id].gun===gun;const firing=r.events.includes('shot')||r.weaponEffects.some(e=>e.type===gun&&!e.source&&e.life>0&&(e.weaponSlot===undefined||e.weaponSlot===r.selectedWeapon));r.condenser.equipped=active('condenser');r.condenser.step(dt,r,bounds);
+ if(shared)updateAccessoryZones(r,dt,bounds);r.magneticTime=Math.max(0,r.magneticTime-dt);
+ for(const id of slots){if(!id)continue;if(id==='conductive'){if(active(id))r.accessoryCharge[id]=Math.max(0,Math.min(1,1-((r.waterChainReady||0)-r.elapsed)/waterChainCooldown(r)));continue}if(!active(id)||id==='condenser'||id==='rail')continue;let energy=firing?dt*rateScale:0;if(['conductive','freeze','foam','hydrogen','capacitor','magnetic','shards'].includes(id))energy=dt>0&&r.events.includes('shot')?r.stats.interval*rateScale:0;r.accessoryCharge[id]=(r.accessoryCharge[id]||0)+energy/5;if(r.accessoryCharge[id]<1)continue;r.accessoryCharge[id]=0;
  const targets=r.enemies.filter(e=>e.hp>0&&visibleInCombat(e,bounds)).sort((a,b)=>Math.hypot(a.x-r.x,a.y-r.y)-Math.hypot(b.x-r.x,b.y-r.y)),target=targets[0];
  if(id==='magnetic'){r.magneticTime=3;r.accessoryFx.push({kind:'magnetic',x:r.x,y:r.y,radius:105,life:3});continue}
  if(id==='heat'){r.accessoryZones.push({kind:'heat',x:r.x,y:r.y,radius:120,life:5});continue}
@@ -35,7 +34,7 @@ export function updateAccessories(r,dt,bounds){
  if(id==='pressure'){r.accessoryFx.push({kind:'pressure',x:r.x,y:r.y,radius:130,life:.5,duration:.5});for(const e of targets){const d=Math.hypot(e.x-r.x,e.y-r.y);if(d>130)continue;const a=Math.atan2(e.y-r.y,e.x-r.x),k=e.type===4||e.type===6?.2:1;e.x=Math.max(ARENA_BOUNDS.left+e.r,Math.min(ARENA_BOUNDS.right-e.r,e.x+Math.cos(a)*100*k));e.y=Math.max(ARENA_BOUNDS.top+e.r,Math.min(ARENA_BOUNDS.bottom-e.r,e.y+Math.sin(a)*100*k));r.hit(e,12*damageScale)}}
 
  }
- updateAccessoryProjectiles(r,dt,bounds);
+ if(shared)updateAccessoryProjectiles(r,dt,bounds);
  r.accessoryZones=r.accessoryZones.slice(-8);r.accessoryFx=r.accessoryFx.slice(-16);
 }
 
@@ -46,4 +45,9 @@ export function triggerWaterChain(r,first,bounds){
  r.weaponEffects.push({type:'electric',source:'conductive',nodes,life:.42,duration:.42});r.accessoryCharge.conductive=0;return true;
 }
 
-function updateAccessoryProjectiles(r,dt,bounds){for(const p of r.accessoryProjectiles){const ox=p.x,oy=p.y,travelTime=Math.min(dt,p.life);p.x+=p.vx*travelTime;p.y+=p.vy*travelTime;p.life-=dt;const dx=p.x-ox,dy=p.y-oy;const hits=r.enemies.filter(e=>e.hp>0&&visibleInCombat(e,bounds)).map(e=>{const t=Math.max(0,Math.min(1,((e.x-ox)*dx+(e.y-oy)*dy)/(dx*dx+dy*dy||1)));return {e,t,d:Math.hypot(e.x-ox-t*dx,e.y-oy-t*dy)}}).filter(h=>h.d<h.e.r+p.radius).sort((a,b)=>a.t-b.t);const hit=hits[0];if(hit){r.hit(hit.e,p.damage);if(p.kind==='ice'&&hit.e.hp>0){hit.e.slow=3;hit.e.slowFactor=.45}r.burst(ox+dx*hit.t,oy+dy*hit.t,p.kind==='ice'?'#c0eeff':'#e3e8dc',p.kind==='ice'?9:4);p.life=0}}r.accessoryProjectiles=r.accessoryProjectiles.filter(p=>p.life>0&&p.x>=bounds.left&&p.x<=bounds.right&&p.y>=bounds.top&&p.y<=bounds.bottom).slice(-100)}
+export function updateAccessoryProjectiles(r,dt,bounds){for(const p of r.accessoryProjectiles){const ox=p.x,oy=p.y,travelTime=Math.min(dt,p.life);p.x+=p.vx*travelTime;p.y+=p.vy*travelTime;p.life-=dt;const dx=p.x-ox,dy=p.y-oy;const hits=r.enemies.filter(e=>e.hp>0&&visibleInCombat(e,bounds)).map(e=>{const t=Math.max(0,Math.min(1,((e.x-ox)*dx+(e.y-oy)*dy)/(dx*dx+dy*dy||1)));return {e,t,d:Math.hypot(e.x-ox-t*dx,e.y-oy-t*dy)}}).filter(h=>h.d<h.e.r+p.radius).sort((a,b)=>a.t-b.t);const hit=hits[0];if(hit){r.hit(hit.e,p.damage);if(p.kind==='ice'&&hit.e.hp>0){hit.e.slow=3;hit.e.slowFactor=.45}r.burst(ox+dx*hit.t,oy+dy*hit.t,p.kind==='ice'?'#c0eeff':'#e3e8dc',p.kind==='ice'?9:4);p.life=0}}r.accessoryProjectiles=r.accessoryProjectiles.filter(p=>p.life>0&&p.x>=bounds.left&&p.x<=bounds.right&&p.y>=bounds.top&&p.y<=bounds.bottom).slice(-100)}
+
+export function updateAccessoryZones(r,dt,bounds){const damageScale=accessoryDamageScale(r);
+ for(const z of r.accessoryZones){z.life-=dt;if(z.kind==='heat')for(const e of r.enemies){if(e.hp>0&&visibleInCombat(e,bounds)&&Math.abs(Math.hypot(e.x-z.x,e.y-z.y)-z.radius)<e.r+24)r.hit(e,16*damageScale*dt,true)}if(z.kind==='foam')for(const e of r.enemies)if(Math.hypot(e.x-z.x,e.y-z.y)<z.radius+e.r){e.slow=1.5;e.slowFactor=.45}}
+ r.accessoryZones=r.accessoryZones.filter(z=>z.life>0);r.accessoryFx=r.accessoryFx.filter(z=>(z.life-=dt)>0);
+}

@@ -8,7 +8,7 @@ export class Condenser{
  toggle(){this.equipped=!this.equipped;this.clear()}
  step(dt,run,bounds){
   const collectionRate=.2*accessoryRateScale(run,2),damage=1.5*accessoryDamageScale(run);
-  this.collecting=this.equipped&&run.lab.gun.type==='flame'&&run.weaponEffects.some(e=>e.type==='flame'&&e.life>0);
+  this.collecting=this.equipped&&run.lab.gun.type==='flame'&&run.weaponEffects.some(e=>e.type==='flame'&&!e.source&&e.life>0&&(e.weaponSlot===undefined||e.weaponSlot===run.selectedWeapon));
   if(!this.equipped||run.lab.gun.type!=='flame'){this.charge=0;this.spraying=false;this.particles=[];this.impacts=[];this.muzzle=null;return}
   if(this.spraying){this.charge=Math.max(0,this.charge+dt*(this.collecting?collectionRate:0)-dt/1.8);if(this.charge<=1e-9){this.charge=0;this.spraying=false;this.muzzle=null}}
   else if(this.collecting){this.charge=Math.min(1,this.charge+dt*collectionRate);if(this.charge>=1-1e-9){this.charge=1;this.spraying=true;this.clock=0;this.bursts++;run.events.push('condenserBurst')}}

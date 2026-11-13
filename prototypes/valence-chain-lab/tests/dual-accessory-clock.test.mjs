@@ -1,0 +1,4 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {DualRun} from '../dist/dual-run.mjs';
+const bounds={left:22,top:22,right:1178,bottom:778};
+function run(two){const r=new DualRun(()=>.99);r.start('flame');if(two)r.pickupGun('water');r.accessoryZones=[{kind:'heat',x:600,y:400,radius:120,life:5}];const e=r.spawnEnemy(2,720,400,{hp:1000,speed:0});r.accessoryProjectiles=[{kind:'ice',x:600,y:600,vx:100,vy:0,life:1,damage:24,radius:7}];r.updateGunSystems(.1,{x:r.x,y:r.y},r.stats,[],bounds);return {damage:1000-e.hp,life:r.accessoryZones[0].life,x:r.accessoryProjectiles[0].x,projectileLife:r.accessoryProjectiles[0].life}}
+test('two weapons do not double-tick shared accessory damage, duration or projectile speed',()=>{const one=run(false),two=run(true);assert.ok(Math.abs(one.damage-1.6)<1e-7);assert.deepEqual(two,one);assert.equal(two.life,4.9);assert.equal(two.x,610);assert.equal(two.projectileLife,.9)});

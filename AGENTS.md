@@ -25,3 +25,8 @@
 
 
 - 已经用户授权上线Hugo主站：公开URL https://kevin-wang.com/games/valence/，网站repo kevin-kkw/kevin-wang.com 下 mainsite/static/games/valence/。使用scripts/export-hugo.py导出带指纹的静态发布，更新流程见docs/hugo-deployment.md。Hugo GitHub Actions与旧Sites完全独立；不要混用身份。线上更新需同步网站快照并核对CI，单改本repo不等于上线。
+
+
+## V4.2 获准部署
+
+用户明确要求“可以，修改后部署”，本次授权仅适用于V4.2，不恢复未来版本自动上线。包含先前仅本地的双枪、+5/+10进阶、所有精英配件、四配件两枪口、1/3关后半段随机保底；按数值总表统一六枪初始直接伤害18，酸枪不穿透，气压每级+1.8，电弧不增加Lv弹伤。修复双枪共用配件场地/弹体每帧重复更新。34测试文件+UI mock/语法通过，真实Chromium验证六系三个进阶阶段和390宽度，无控制台错误。源码需同步Hugo快照，部署结果以网站CI及release.json为准。

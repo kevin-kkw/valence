@@ -41,11 +41,11 @@ export function waterFlowSegments(particles,muzzle=null){
  for(const point of points){let line=segments[segments.length-1],last=line?.[line.length-1];if(!last||last.streamId!==point.streamId||Math.hypot(point.x-last.x,point.y-last.y)>48){line=[];segments.push(line)}line.push(point)}
  return segments;
 }
-export function drawWaterFlow(c,particles,muzzle,time,impacts=[]){
+export function drawWaterFlow(c,particles,muzzle,time,impacts=[],widthScale=1){
  c.save();c.lineCap='round';c.lineJoin='round';
  for(const line of waterFlowSegments(particles,muzzle)){
   if(line.length<2)continue;const path=()=>{c.beginPath();c.moveTo(line[0].x,line[0].y);for(let i=1;i<line.length-1;i++){const a=line[i],b=line[i+1];c.quadraticCurveTo(a.x,a.y,(a.x+b.x)/2,(a.y+b.y)/2)}const end=line[line.length-1];c.lineTo(end.x,end.y)};
-  path();c.strokeStyle='#36bce644';c.lineWidth=15;c.stroke();path();c.strokeStyle='#65d4edbb';c.lineWidth=8;c.stroke();path();c.strokeStyle='#d9fbffbb';c.lineWidth=2.2;c.stroke();
+  path();c.strokeStyle='#36bce644';c.lineWidth=15*widthScale;c.stroke();path();c.strokeStyle='#65d4edbb';c.lineWidth=8*widthScale;c.stroke();path();c.strokeStyle='#d9fbffbb';c.lineWidth=2.2;c.stroke();
   for(let i=1;i<line.length;i+=3){const p=line[i],prev=line[i-1],angle=Math.atan2(p.y-prev.y,p.x-prev.x);c.save();c.translate(p.x,p.y);c.rotate(angle);c.beginPath();c.ellipse(0,Math.sin(time*20+i)*1.5,3.5,1.3,0,0,Math.PI*2);c.fillStyle='#edffffcc';c.fill();c.restore()}
  }
  for(let i=0;i<impacts.length;i++){const p=impacts[i],radius=3+(1-p.life/.16)*12;c.globalAlpha=Math.max(0,p.life/.16);c.strokeStyle='#bdefff';c.lineWidth=1.5;for(let j=0;j<5;j++){const a=j*Math.PI*2/5+i;c.beginPath();c.moveTo(p.x+Math.cos(a)*3,p.y+Math.sin(a)*3);c.lineTo(p.x+Math.cos(a)*radius,p.y+Math.sin(a)*radius);c.stroke()}}

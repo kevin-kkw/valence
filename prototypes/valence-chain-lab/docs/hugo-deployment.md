@@ -20,8 +20,11 @@ python scripts/export-hugo.py /tmp/valence-next --source-commit <游戏源码Git
 python3 -m unittest discover -s tests -v
 ```
 
-导出包含入口HTML、14个JS模块、CSS与release.json，不含Sites身份配置、旧配方/配件独立试验页、凭据或聊天记录。依赖模块按内容指纹重写引用为`.js`，CSS同样加指纹。release.json保存源码仓库/提交、版本与文件SHA-256。新增资源或模块后导出会自动跟随主入口依赖；若引入循环模块依赖需升级打包方式。
+导出包含入口HTML、17个JS模块、CSS与release.json，不含Sites身份配置、旧配方/配件独立试验页、凭据或聊天记录。依赖模块按内容指纹重写引用为`.js`，CSS同样加指纹。release.json保存源码仓库/提交、版本与文件SHA-256。新增资源或模块后导出会自动跟随主入口依赖；若引入循环模块依赖需升级打包方式。
 
 网站的main推送触发既有Actions：部署工具测试、同步主题、Hugo生产构建、上传VM、激活发布与HTTPS标记检查；游戏无需后端，不依赖Sites。网站导航/文章与服务器配置保持现有设置，用户直接访问游戏路径。
 
 测试分层：游戏原有模型/UI mock检查；导出后用实际指纹模块运行游戏UI mock；网站Python测试校验全部文件hash、版本及HTML/模块本地引用；Actions负责实际Hugo构建和VM发布。DOM/canvas mock不是浏览器视觉验收。指纹资源可安全长期缓存，入口HTML的实际缓存策略由网站服务器管理。
+
+
+V4.2：用户已明确批准当前修改后部署；包含双枪/进阶、随机后半段保底和统一伤害总表。仅本次版本获准，不恢复后续自动部署。具体部署提交以网站release.json为准。

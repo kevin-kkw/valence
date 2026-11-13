@@ -12,8 +12,8 @@ export const MATERIALS=Object.freeze({
 export const RECIPES=Object.freeze({
  water:{name:'水枪',family:'水系',tag:'装填改装',cost:{water:1},products:{},color:'#77d9f5',icon:'≋',displayFormula:'H₂O',assemblyText:'装填水 / 改装水枪模块',summary:'流动水柱 · 升级喷得更远',equation:null,effect:'提高攻击速度，枪等级越高水柱越远；单发伤害不变。',fact:'装填水是装备制造机制，不是化学反应。'},
  flame:{name:'氢燃烧枪',family:'燃烧系',tag:'燃烧试验',cost:{hydrogen:2,oxygen:1},products:{water:2},color:'#b9c5ff',icon:'♨',displayFormula:'H₂ + O₂',summary:'近距扇形 · 持续灼烧',equation:'2H₂ + O₂ → 2H₂O',effect:'近距宽扇形喷焰，可同时命中多目标并持续灼烧；同系升级增强喷射与灼烧。',fact:'氢气是燃料，氧气是氧化剂；炉内点火触发反应，氢焰通常呈淡蓝色。'},
- acid:{name:'酸液枪',family:'腐蚀系',tag:'溶液装填',cost:{acid:1},products:{},color:'#a6e66f',icon:'◌',displayFormula:'HCl(aq)',assemblyText:'装填盐酸 / 酸液模块',summary:'穿透酸弹 · 扩大腐蚀溅射',equation:null,effect:'酸弹穿透2个目标，首次命中形成腐蚀溅射并叠加最多3层腐蚀；升级提高弹伤，适合打穿前排清理怪群，不是持续灼烧。',fact:'盐酸为氯化氢水溶液，装填不列化学反应式。腐蚀增伤是统一游戏状态，本轮没有按怪物材质设置酸克制。'},
- gas:{name:'二氧化碳气压枪',family:'气压系',tag:'压缩装配',cost:{carbon_dioxide:1},products:{},color:'#d4eef1',icon:'◉',displayFormula:'CO₂',assemblyText:'装配二氧化碳介质 / 压缩模块',summary:'短程扩散 · 击退多目标',equation:null,effect:'扩散气流同时击退多个近处目标；升级提高射程和击退力，Boss只受较弱击退。',fact:'压力由枪械压缩模块提供。击退属于游戏设计，不是二氧化碳发生了化学变化。'},
+ acid:{name:'酸液枪',family:'腐蚀系',tag:'溶液装填',cost:{acid:1},products:{},color:'#a6e66f',icon:'◌',displayFormula:'HCl(aq)',assemblyText:'装填盐酸 / 酸液模块',summary:'命中爆开 · 扩大腐蚀溅射',equation:null,effect:'酸弹命中即爆开、不穿透，形成腐蚀溅射并叠加最多3层腐蚀；升级提高弹伤，适合溅射清理怪群，不是持续灼烧。',fact:'盐酸为氯化氢水溶液，装填不列化学反应式。腐蚀增伤是统一游戏状态，本轮没有按怪物材质设置酸克制。'},
+ gas:{name:'二氧化碳气压枪',family:'气压系',tag:'压缩装配',cost:{carbon_dioxide:1},products:{},color:'#d4eef1',icon:'◉',displayFormula:'CO₂',assemblyText:'装配二氧化碳介质 / 压缩模块',summary:'短程扩散 · 击退多目标',equation:null,effect:'扩散气流同时击退多个近处目标；升级提高弹伤、射程和击退力，Boss只受较弱击退。',fact:'压力由枪械压缩模块提供。击退属于游戏设计，不是二氧化碳发生了化学变化。'},
  electric:{name:'盐水电弧枪',family:'电弧系',tag:'溶解与装配',cost:{salt:1,water:1},products:{},color:'#d6b8ff',icon:'ϟ',displayFormula:'NaCl(aq)',assemblyText:'盐溶于水 / 装配枪械电源',summary:'连锁电弧 · 跳跃伤害',equation:null,effect:'电弧在附近不同目标间跳跃，逐次伤害降低；升级提高跳跃次数与距离。',fact:'氯化钠溶于水形成可导电溶液；枪械电源提供能量，盐水仅作为导电介质。此配方是溶解与装备装配，不列生成新物质的反应式。'},
  iron:{name:'铁弹枪',family:'磁轨系',tag:'磁轨改装',cost:{iron:2},products:{},color:'#d0d8e6',icon:'➤',displayFormula:'Fe',assemblyText:'装配铁弹 / 枪械供电磁轨',summary:'远程重击 · 有限贯穿',equation:null,effect:'射程长、射速低、单发重击，贯穿有限数量目标；同一颗弹不会重复命中同一目标。',fact:'铁是单质。装配和电磁加速属于装备机制；这里不声称发生了新的化学反应。'}
 });
@@ -49,8 +49,8 @@ export const DIFFICULTY=Object.freeze({healthPerWave:1.35,damagePerWave:1.2,boss
 export function waveScaling(wave){const level=Math.max(0,Math.floor(wave)-1);return {health:DIFFICULTY.healthPerWave**level,damage:DIFFICULTY.damagePerWave**level}}
 export const WEAPON_PROFILES=Object.freeze({
  normal:{range:600,rangePerLevel:0,halfAngle:0},water:{range:260,rangePerLevel:55,halfAngle:0},flame:{range:160,rangePerLevel:15,halfAngle:.45,anglePerLevel:.02},
- acid:{range:340,rangePerLevel:25,halfAngle:0,interval:.36,damageMultiplier:1.35,damagePerLevel:.10,projectileSpeed:800,corrosionStep:.12,corrosionPerLevel:.02},
- gas:{range:190,rangePerLevel:20,halfAngle:.55,anglePerLevel:.02,interval:.7,damageMultiplier:.55,knockback:65,knockbackPerLevel:10},
- electric:{range:250,rangePerLevel:20,halfAngle:0,interval:.65,damageMultiplier:.8,chainRange:110,chainRangePerLevel:5},
- iron:{range:640,rangePerLevel:30,halfAngle:0,interval:.85,damageMultiplier:1.8,damagePerLevel:.12,projectileSpeed:900}
+ acid:{range:340,rangePerLevel:25,halfAngle:0,interval:.36,damageMultiplier:1,damagePerLevel:.10,projectileSpeed:800,corrosionStep:.12,corrosionPerLevel:.02},
+ gas:{range:190,rangePerLevel:20,halfAngle:.55,anglePerLevel:.02,interval:.7,damageMultiplier:1,damagePerLevel:.10,knockback:65,knockbackPerLevel:10},
+ electric:{range:250,rangePerLevel:20,halfAngle:0,interval:.65,damageMultiplier:1,chainRange:110,chainRangePerLevel:5},
+ iron:{range:640,rangePerLevel:30,halfAngle:0,interval:.85,damageMultiplier:1,damagePerLevel:.12,projectileSpeed:900}
 });
