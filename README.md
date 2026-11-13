@@ -68,3 +68,6 @@ GitHub用于保存和继续开发，尚未配置自动部署。两个原型各�
 
 
 新配件试玩：[火里生水](https://valence-chain-lab.goodcamel13.chatgpt.site/pack-demo.html)。氢氧喷火蓄水，满包自动向侧后方喷水；开火边喷边补，空包停喷并等待蓄满。配件创意已完整保存在项目设计记录中。
+
+
+最新试玩请直接进入 [VALENCE 原版主游戏](https://valence-chain-lab.goodcamel13.chatgpt.site/)，选择氢燃烧枪即可体验冷凝水包。配件已接入原界面、升级、实验室和 Boss 流程。

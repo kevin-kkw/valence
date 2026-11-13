@@ -1,3 +1,4 @@
+import {Condenser} from './condenser.mjs';
 import {combatBounds,visibleInCombat,ARENA_BOUNDS} from './view.mjs';
 import {MATERIALS,RECIPES,emptyStock,MAX_LEVEL,BASE_ABILITIES,ABILITIES,DROP_RATES,ENEMY_TYPES,DIFFICULTY,waveScaling,WEAPON_PROFILES} from './catalog.mjs';
 export function gunStats(gun,abilities=BASE_ABILITIES){
@@ -17,7 +18,7 @@ export class Lab{
 }
 export class Run{
  constructor(random=Math.random){this.random=random;this.dropMode='standard';this.startingGun='water';this.reset()}
- reset(){Object.assign(this,{lab:new Lab(),abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],weaponEffects:[],waterParticles:[],waterImpacts:[],waterEmissionCarry:0,waterStreamId:0,waterNextId:1,waterEmitting:false,waterMuzzle:null,waterLastAngle:0,enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0})}
+ reset(){Object.assign(this,{lab:new Lab(),condenser:new Condenser(),abilities:{...BASE_ABILITIES},state:'menu',wave:1,waveTime:0,elapsed:0,x:600,y:400,hp:100,kills:0,damageDone:0,burnDamage:0,burnHits:0,picked:0,xp:0,diamonds:0,level:1,upgradeChoices:[],upgradeReturn:'playing',bossSpawned:false,bossDefeated:false,hazards:[],weaponEffects:[],waterParticles:[],waterImpacts:[],waterEmissionCarry:0,waterStreamId:0,waterNextId:1,waterEmitting:false,waterMuzzle:null,waterLastAngle:0,enemies:[],bullets:[],drops:[],particles:[],texts:[],events:[],supply:emptyStock(),spawn:0,spawnCount:0,shot:0,inv:0,nextId:1,angle:0})}
  get needed(){return 8+(this.level-1)*5}
  get stats(){return gunStats(this.lab.gun,this.abilities)}
  setDropMode(mode){if(this.state!=='menu'||!Object.hasOwn(DROP_RATES,mode))return false;this.dropMode=mode;return true}
@@ -67,7 +68,7 @@ export class Run{
   while(this.waterEmissionCarry>=1/60){this.waterEmissionCarry-=1/60;const age=this.waterEmissionCarry,t=dt?1-age/dt:1;const p={id:this.waterNextId++,streamId:this.waterStreamId,x:previous.x+(this.x-previous.x)*t+vx/600*22,y:previous.y+(this.y-previous.y)*t+vy/600*22,vx,vy,age:0,travelled:0,maxDistance:stats.range-22};if(advance(p,age))this.waterParticles.push(p)}
   this.waterParticles=this.waterParticles.slice(-100);this.waterImpacts=this.waterImpacts.slice(-12);
  }
- endWave(){for(const d of this.drops)this.collect(d);this.drops=[];this.enemies=[];this.hazards=[];this.weaponEffects=[];this.waterParticles=[];this.waterImpacts=[];this.waterEmitting=false;this.waterMuzzle=null;this.bullets=[];this.particles=[];this.texts=[];if(this.wave===2){this.state='won';return}const minimum=this.dropMode==='high'?{water:6,hydrogen:6,oxygen:3,acid:3,carbon_dioxide:3,salt:3,iron:6}:{water:1,hydrogen:2,oxygen:1};for(const [id,n]of Object.entries(RECIPES[this.lab.gun.type]?.cost||{}))minimum[id]=Math.max(minimum[id]||0,n);for(const id of Object.keys(minimum)){this.supply[id]=Math.max(0,minimum[id]-this.lab.inventory[id]);this.lab.inventory[id]+=this.supply[id]}this.state='lab';this.checkUpgrade()}
+ endWave(){this.condenser.particles=[];this.condenser.impacts=[];this.condenser.muzzle=null;for(const d of this.drops)this.collect(d);this.drops=[];this.enemies=[];this.hazards=[];this.weaponEffects=[];this.waterParticles=[];this.waterImpacts=[];this.waterEmitting=false;this.waterMuzzle=null;this.bullets=[];this.particles=[];this.texts=[];if(this.wave===2){this.state='won';return}const minimum=this.dropMode==='high'?{water:6,hydrogen:6,oxygen:3,acid:3,carbon_dioxide:3,salt:3,iron:6}:{water:1,hydrogen:2,oxygen:1};for(const [id,n]of Object.entries(RECIPES[this.lab.gun.type]?.cost||{}))minimum[id]=Math.max(minimum[id]||0,n);for(const id of Object.keys(minimum)){this.supply[id]=Math.max(0,minimum[id]-this.lab.inventory[id]);this.lab.inventory[id]+=this.supply[id]}this.state='lab';this.checkUpgrade()}
  step(dt,input={}){
   if(this.state!=='playing')return;dt=Math.min(.1,Math.max(0,dt));this.events=[];if(this.hp<=0){this.state='dead';return}
   this.elapsed+=dt;this.waveTime=Math.min(60,this.waveTime+dt);if(this.waveTime>=60-1e-8&&(this.wave===1||this.bossDefeated)){this.endWave();return}
@@ -109,6 +110,8 @@ export class Run{
   }
   this.enemies=this.enemies.filter(e=>e.hp>0);this.bullets=this.bullets.filter(b=>b.life>0&&b.x>=bounds.left&&b.x<=bounds.right&&b.y>=bounds.top&&b.y<=bounds.bottom);
   this.updateWaterFlow(dt,previousPlayer,stats,targets.some(e=>e.hp>0),bounds);
+  this.condenser.step(dt,this,bounds);
+  this.enemies=this.enemies.filter(e=>e.hp>0);
   this.weaponEffects=this.weaponEffects.slice(-32);
   this.updateHazards(dt);
   this.drops=this.drops.filter(drop=>{let dx=this.x-drop.x,dy=this.y-drop.y,n=Math.hypot(dx,dy);if(n<this.abilities.magnet){let s=Math.min(n,460*dt);drop.x+=dx/(n||1)*s;drop.y+=dy/(n||1)*s}if(n<24){this.collect(drop);return false}return true});

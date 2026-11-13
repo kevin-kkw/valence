@@ -53,3 +53,5 @@
  #materialCards{max-height:280px}
  #recipeCards{max-height:300px}
 }
+
+.condenser-panel{margin-top:14px;padding-top:12px;border-top:1px solid #8fae8d33}.condenser-panel .section-label{display:flex;justify-content:space-between}.condenser-track{height:7px;border-radius:7px;background:#2b4338;overflow:hidden;margin:8px 0}.condenser-track i{display:block;height:100%;width:0;background:#8bd3e3;transition:width .12s linear}.condenser-panel p{font-size:11px;line-height:1.6;min-height:34px}.condenser-panel button{font-size:11px}.condenser-panel button:disabled{opacity:.45;cursor:default}
