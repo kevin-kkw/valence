@@ -252,3 +252,8 @@ Sites 原来的源码托管是服务管理的独立 Git 仓库，与 `kevin-kkw/
 正式空配件开局，从精英获取；菜单提供明确标注“装备试验”入口，可直接选关卡/配件/枪口。不要再将独立 pack-demo 页面当主游戏。完整记录在 prototypes/valence-chain-lab/docs/ten-wave-design.md。
 
 本地试玩文件：/workspace/valence/artifacts/VALENCE-ten-waves.html；由 scripts/build-local-demo.py 将全部模块/CSS打包，无需网络。常规源码仍多文件，npm run dev 后访问 localhost:3000。测试包含新十关/奖励/兼容/十二配件/六枪四枪口/远程/最终战与UI mock；旧两关回归由 tests/legacy-model.mjs 显式隔离。npm test、npm run check、git diff --check通过。真实浏览器视觉、触屏与整局平衡尚未验收。此次不调用Sites发布，GitHub同步不等于更新原在线网址。
+
+
+## 最新试玩修正：当前枪优先、右栏页签
+
+波间整备现在默认选当前持枪配方，左右按钮/方向键循环浏览其他枪，浏览不直接替换武器，制作与异系确认保留。右栏改为装备/背包/配方三个页签，一次展示一个；进入整备自动打开背包，开局回装备；桌面侧栏独立滚动，窄屏自然页面滚动。知识说明在装备页。已增加UI mock回归并通过全套测试/语法检查，未真实浏览器布局验收。本地最新版 /workspace/valence/artifacts/VALENCE-ten-waves-v2.html，旧 VALENCE-ten-waves.html 也已重新生成；继续本地开发，不发布Sites。

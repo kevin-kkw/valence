@@ -57,3 +57,17 @@
 .condenser-panel{margin-top:14px;padding-top:12px;border-top:1px solid #8fae8d33}.condenser-panel .section-label{display:flex;justify-content:space-between}.condenser-track{height:7px;border-radius:7px;background:#2b4338;overflow:hidden;margin:8px 0}.condenser-track i{display:block;height:100%;width:0;background:#8bd3e3;transition:width .12s linear}.condenser-panel p{font-size:11px;line-height:1.6;min-height:34px}.condenser-panel button{font-size:11px}.condenser-panel button:disabled{opacity:.45;cursor:default}
 
 .equipment-slots{margin-top:12px}.gear-slot{border:1px solid #89a98a44;border-radius:8px;padding:9px;margin-top:7px}.gear-slot b{font-size:12px;display:block;color:#d6e8c5}.gear-slot small{font-size:10px;line-height:1.6;color:#a6bea7;display:block}.gear-slot details{font-size:10px;color:#afc3aa}.dialog-card label{display:block;margin:12px 0}.dialog-card select{width:100%;padding:9px;background:#20382e;color:#e1ebd4;border:1px solid #789a76;border-radius:6px}.screen-card:has(.ability-options){max-height:90%;overflow:auto}
+
+/* One accessible sidebar panel at a time, aligned with the arena. */
+.sidebar{display:block;min-width:0;position:sticky;top:12px;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-bottom:4px}
+.sidebar-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;background:#12231f;padding:6px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;position:sticky;top:0;z-index:3}
+.sidebar-tabs button{font:inherit;font-size:12px;color:#afc4a5;border:1px solid transparent;border-radius:5px;background:transparent;min-height:36px;cursor:pointer}
+.sidebar-tabs button[aria-selected="true"]{background:#314d35;color:#e5f1d3;border-color:#789865}
+.sidebar-tabs button:focus-visible,.recipe-carousel button:focus-visible{outline:2px solid #c5e7a7;outline-offset:2px}
+#equipmentPane>.science-panel{margin-top:10px}#equipmentPane{min-width:0}
+#materialCards,#recipeCards{max-height:none;overflow:visible;padding-right:0}
+#recipeCards{display:grid;grid-template-columns:1fr;gap:8px}#recipeCards .recipe-card{width:100%;margin:0}
+.recipe-carousel{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;gap:12px;align-items:center;margin:14px 0}
+.recipe-carousel button{height:40px;border:1px solid #76946b;border-radius:7px;background:#263f30;color:#d6e8c5;font-size:26px;cursor:pointer}
+.recipe-carousel>div{text-align:center}.recipe-carousel strong{display:block;font-size:12px;color:#d4e8c3}.recipe-carousel small{display:block;color:#91b18c;font:11px monospace;margin-top:3px}
+@media(max-width:760px){.sidebar{position:static;max-height:none;display:block}.sidebar-tabs{position:static}#materialCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}#recipeCards{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar .recipes-panel{grid-column:auto}.recipe-carousel{gap:8px}.recipe-carousel strong{font-size:11px}}
