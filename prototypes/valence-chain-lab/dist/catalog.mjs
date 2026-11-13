@@ -1,4 +1,4 @@
-export const MAX_LEVEL=5;
+export const MAX_LEVEL=10;
 export const ELEMENTS=Object.freeze({H:'氢',O:'氧',C:'碳',Na:'钠',Cl:'氯',Fe:'铁'});
 export const MATERIALS=Object.freeze({
  water:{name:'水',formula:'H₂O',color:'#77d9f5',label:'装填介质',atoms:{H:2,O:1},fact:'水可作冷却介质。这里装填水来改装枪，不发生化学反应。'},
@@ -38,7 +38,12 @@ export const ENEMY_TYPES=Object.freeze([
  {id:'colloid',name:'胶体集群',hp:45,speed:57,r:22,diamonds:3,damage:8,behavior:'split',description:'击败后分裂成两个小型胶体'},
  {id:'reactor',name:'失控反应釜',hp:800,speed:28,r:44,diamonds:16,damage:22,behavior:'boss',description:'第9关前哨Boss；召唤样本、缺口冲击环、地面锁定爆发，低血过载'},
  {id:'shooter',name:'磁性铁屑怪',hp:48,speed:28,r:17,diamonds:4,damage:12,behavior:'ranged',description:'停步蓄力，锁定方向发射可躲避金属弹'},
- {id:'core',name:'失控实验核心',hp:2400,speed:24,r:51,diamonds:30,damage:24,behavior:'boss',description:'最终Boss：缺口冲击、地面爆发、召唤与过载'}
+ {id:'core',name:'熵灭实验体',hp:2400,speed:24,r:48,diamonds:30,damage:24,behavior:'final',description:'三形态最终Boss：束缚核心、双生裂变、熵灭化身；击败即通关'},
+ {id:'oxidizer',name:'氧化孢子',hp:48,speed:51,r:19,diamonds:3,damage:12,behavior:'mine',description:'预警后引爆玩家脚下的氧化区'},
+ {id:'ion',name:'游离电离体',hp:62,speed:44,r:20,diamonds:4,damage:13,behavior:'fan',description:'释放扇形非金属电荷弹'},
+ {id:'polymer',name:'聚合猎群',hp:75,speed:64,r:22,diamonds:4,damage:14,behavior:'hunter',description:'短促扑袭，死亡释放两只幼体'},
+ {id:'entropy',name:'熵蚀游魂',hp:80,speed:43,r:21,diamonds:5,damage:15,behavior:'teleport',description:'预警后闪现，在原地留下危险区'},
+ {id:'radical',name:'自由基星簇',hp:90,speed:48,r:23,diamonds:5,damage:16,behavior:'radial',description:'周期性释放环形非金属弹'}
 ]);
 export const DIFFICULTY=Object.freeze({healthPerWave:1.35,damagePerWave:1.2,bossHealth:800,ringWarning:1.2,zoneWarning:1.1,ringGapHalfAngle:.55});
 export function waveScaling(wave){const level=Math.max(0,Math.floor(wave)-1);return {health:DIFFICULTY.healthPerWave**level,damage:DIFFICULTY.damagePerWave**level}}
