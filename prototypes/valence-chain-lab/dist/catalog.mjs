@@ -33,7 +33,7 @@ export const ABILITIES=Object.freeze({
 });
 export const ENEMY_TYPES=Object.freeze([
  {id:'acid',name:'酸雾团',hp:32,speed:55,r:18,diamonds:2,damage:4,behavior:'acid',description:'在近距离释放酸雾，持续威胁周围区域'},
- {id:'metal',name:'活泼金属小怪',hp:24,speed:95,r:13,diamonds:1,damage:9,behavior:'dash',description:'高速接近并短暂冲刺，生命较低'},
+ {id:'metal',name:'活泼金属小怪',hp:24,speed:95,r:13,diamonds:1,damage:9,behavior:'dash',description:'短暂预警后持续高速追击，直到被击败，生命较低'},
  {id:'crystal',name:'晶体甲壳兽',hp:90,speed:36,r:25,diamonds:5,damage:14,behavior:'shell',description:'厚血低速，半血后外壳破裂'},
  {id:'colloid',name:'胶体集群',hp:45,speed:57,r:22,diamonds:3,damage:8,behavior:'split',description:'击败后分裂成两个小型胶体'},
  {id:'reactor',name:'失控反应釜',hp:800,speed:28,r:44,diamonds:16,damage:22,behavior:'boss',description:'第9关前哨Boss；召唤样本、缺口冲击环、地面锁定爆发，低血过载'},
