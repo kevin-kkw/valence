@@ -1,3 +1,5 @@
+> 历史计划/规格：保留当时决策与实现过程，后续可能已替代。现行规则见[当前规格](../../current-rules.md)。
+
 # VALENCE Short Loop Implementation Plan
 > Execute inline; user explicitly authorized this prototype.
 **Goal:** Collect substances, craft a chemical gun, survive wave two, restart.

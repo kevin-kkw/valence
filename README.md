@@ -1,3 +1,14 @@
+# VALENCE · 当前V4.11
+
+在线试玩：https://kevin-wang.com/games/valence/
+
+当前代码位于 `prototypes/valence-chain-lab/`。请从[现行规则](prototypes/valence-chain-lab/docs/current-rules.md)和[文档索引](prototypes/valence-chain-lab/docs/README.md)了解当前实现；[枪械DPS与成长总表](prototypes/valence-chain-lab/docs/weapon-balance-discussion.md)、[验证状态](prototypes/valence-chain-lab/docs/verification.md)、[发布流程](prototypes/valence-chain-lab/docs/hugo-deployment.md)。
+
+根目录GDD是早期长期愿景，`demos/potato-survivors/`是早期独立原型。它们保留用于追溯，不代表当前游戏。
+
+<details>
+<summary>历史项目说明（保留原文）</summary>
+
 # Valence · 链式反应
 
 化学题材生存游戏：战斗收集物质，波间查看配方、拖拽投料，改装枪械后进入下一波。
@@ -79,3 +90,6 @@ GitHub用于保存和继续开发，尚未配置自动部署。两个原型各�
 
 
 最新为本地十关版本：源码 `prototypes/valence-chain-lab/`，运行 `npm run dev` 后打开 localhost:3000；或 `python scripts/build-local-demo.py` 生成可双击的本地HTML。规则见 `docs/ten-wave-design.md`，本轮不依赖 Sites，不更新在线网址。
+
+
+</details>

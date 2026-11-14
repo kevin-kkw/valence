@@ -1,3 +1,5 @@
+> 文档性质：原始V0.1长期愿景，不是当前实现规格。当前V4.11规则见[现行规则](../prototypes/valence-chain-lab/docs/current-rules.md)，各专题见[文档索引](../prototypes/valence-chain-lab/docs/README.md)。原始愿景保留用于追溯，已被替代的数值和流程不应据此恢复。
+
 # VALENCE: Chain Reaction — 游戏设计与 MVP 开发规格
 
 > 版本：v0.1（2026-11-12）  

@@ -400,3 +400,8 @@ Sites 原来的源码托管是服务管理的独立 Git 仓库，与 `kevin-kkw/
 ## V4.11 发布授权
 
 用户明确确认取消免费物质补给并要求部署当前V4.11。关末只自动收取枪/配件/枪口，钻石/物质/血瓶须亲自拾取，未捡清除；取消免费材料保底。关间队列和立即最终Boss胜利保留。40模型文件+UI/语法、真实浏览器关间流程通过，独立审查无重要问题。本次授权不延续至后续版本。
+
+
+## V4.11 上线及当前文档入口
+
+网站已V4.11：发布源码fa84b4c60563e1b1771f06b2388b8c05a1a61872，网站cedb0e4222a4b4eeee97988b81cf81ee1f1d96d1，Actions43568158498 success；release.json与全部20个HTML/JS/CSS哈希一致。用户要求核对文档，现统一[现行规则](prototypes/valence-chain-lab/docs/current-rules.md)与[文档索引](prototypes/valence-chain-lab/docs/README.md)，专题维护当前规格，旧版本说明归档并明确标注历史；原始GDD为长期愿景，不是当前实现。文档同步不重新部署游戏。后续代码更新仍需单独部署授权。
