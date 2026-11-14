@@ -1,0 +1,19 @@
+import {mkdir,writeFile} from 'node:fs/promises';
+const [cdpBase,gameUrl,screenshotDir]=process.argv.slice(2);if(!cdpBase||!gameUrl)throw Error('Usage: node tests/browser-loot-layout.mjs <CDP base URL> <game URL>');
+const tabs=await (await fetch(cdpBase+'/json')).json(),tab=tabs.find(t=>t.type==='page');
+const ws=new WebSocket(tab.webSocketDebuggerUrl);await new Promise(r=>ws.onopen=r);let n=0;const pending=new Map(),errors=[];ws.onmessage=e=>{const p=JSON.parse(e.data);if(p.id){const entry=pending.get(p.id);pending.delete(p.id);p.error?entry.reject(p.error):entry.resolve(p.result)}if(p.method==='Runtime.exceptionThrown')errors.push(p.params.exceptionDetails.text+' '+p.params.exceptionDetails.exception?.description)};
+const call=(method,params={})=>new Promise((resolve,reject)=>{const id=++n;pending.set(id,{resolve,reject});ws.send(JSON.stringify({id,method,params}))});
+await call('Runtime.enable');await call('Page.enable');await call('Emulation.setDeviceMetricsOverride',{width:1365,height:1000,deviceScaleFactor:1,mobile:false});
+await call('Page.navigate',{url:gameUrl});await new Promise(r=>setTimeout(r,2500));
+const evalJS=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description);return r.result.value};
+
+try{
+ await evalJS(`document.querySelector('#start').click();document.querySelector('#sidebarCharacter').click()`);
+ await evalJS(`(async()=>{const {run:r}=await import(document.querySelector('script[type=module]').src);globalThis.__characterRun=r;r.spawn=999;r.shot=999;r.enemies=[];r.hp=63.5;Object.assign(r.abilities,{maxHp:120,damage:24,attackSpeed:1.24,defense:.1,crit:.16,dodge:.05});r.collect({kind:'diamond',value:40,x:r.x,y:r.y})})()`);await new Promise(r=>setTimeout(r,100));
+ const view=await evalJS(`({state:__characterRun.state,text:document.querySelector('#abilityStats').innerText,hidden:document.querySelector('#characterPane').classList.contains('hidden'),equipmentContains:document.querySelector('#equipmentPane').contains(document.querySelector('#abilityStats'))})`);if(view.state!=='playing'||view.hidden||view.equipmentContains||!view.text.includes('63.5 / 120')||!view.text.includes('待选能力 3')||!view.text.includes('1.24×')||!view.text.includes('基础 18 · 升级 +6'))throw Error(JSON.stringify(view));
+ const report=[];
+ for(const [width,height]of [[1365,768],[1024,768],[390,844],[320,568]]){await call('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<500});await new Promise(r=>setTimeout(r,80));await evalJS(`document.querySelector('#characterPane').scrollIntoView({block:'start'})`);const r=await evalJS(`(()=>{const p=document.querySelector('#characterPane'),t=document.querySelector('.sidebar-tabs');return {width:innerWidth,pageWidth:document.documentElement.scrollWidth,paneOverflow:p.scrollWidth>p.clientWidth+1,tabs:[...t.querySelectorAll('button')].map(b=>({label:b.textContent,width:b.clientWidth,scroll:b.scrollWidth})),stats:[...p.querySelectorAll('.character-grid b')].map(b=>b.textContent)}})()`);report.push(r);if(r.pageWidth>width+1||r.paneOverflow||r.tabs.length!==4||r.tabs.some(b=>b.scroll>b.width+1)||r.stats.length!==10)throw Error('Layout failed: '+JSON.stringify(r));if(screenshotDir){await mkdir(screenshotDir,{recursive:true});const shot=await call('Page.captureScreenshot',{format:'png'});await writeFile(screenshotDir+'/character-'+width+'.png',Buffer.from(shot.data,'base64'))}}
+ console.log('Character page browser PASS',JSON.stringify(report));
+ await evalJS(`document.querySelector('#sidebarCharacter').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}))`);if(await evalJS(`document.activeElement.id`)!=='sidebarBag')throw Error('Keyboard tab cycle failed');
+ if(errors.length)throw Error(errors.join('\n'));
+}finally{ws.close()}

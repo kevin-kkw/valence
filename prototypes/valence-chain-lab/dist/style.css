@@ -161,3 +161,20 @@ html:has(.screen-overlay.loot-screen){overflow:hidden}
 /* Reward overlay lives inside the isolated stage: raise its containing panel
    above the sibling sidebar as well as raising the overlay itself. */
 .field-panel:has(.screen-overlay.loot-screen){position:relative;z-index:12}
+/* Character is a full sidebar page, separate from weapon equipment. */
+.sidebar-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+.sidebar .character-panel{padding:18px}
+.character-panel h3{font-size:11px;color:var(--mint);font-weight:600;margin:18px 0 9px;padding-top:12px;border-top:1px solid var(--line)}
+.character-panel .character-grid{gap:14px 12px;font-size:10px}
+.character-panel .character-grid>span{display:block;color:var(--muted);min-width:0}
+.character-panel .character-grid b{display:block;float:none;color:var(--text);font:16px/1.4 monospace;margin:4px 0}
+.character-panel .character-grid small{display:block;color:#91aa99;font-size:9px;line-height:1.6}
+.character-vitals{margin:18px 0 12px}
+.character-vitals>span{font-size:10px;color:var(--muted)}
+.character-vitals strong{display:block;font:25px/1.5 monospace;color:var(--mint);margin:3px 0 7px}
+.character-health{height:6px;border-radius:4px;overflow:hidden;background:#0e1c18}
+.character-health i{display:block;height:100%;background:var(--mint);transition:width .15s}
+.character-progress{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:#bbceb6}
+.character-note{font-size:10px;line-height:1.7;color:#8da38f;margin:12px 0 0}
+.character-panel .character-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.character-panel .character-grid>span{font-size:10px}
