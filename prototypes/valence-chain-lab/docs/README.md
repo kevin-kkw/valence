@@ -15,3 +15,7 @@
 | [发布](hugo-deployment.md) | 静态Hugo流程与线上版本记录 |
 
 `history/`存放旧入口文档快照；ten-wave-design.md、accessory-playground.md、recipe-demo.md、local-v4.6.md以及superpowers计划/规格均为明确标注的历史材料，供追溯，不作为现行需求。仓库根目录原始GDD保留长期愿景，也不等同当前实现。
+
+## 已确认的后续方向
+
+[实验、外勤任务与隐藏终局](future/campaign-progression.md)：记录已确认的三任务自由选、遗物成功带回、三遗物解锁第四图等结构，以及仍待确定的剧情。该设计尚未实现，不能作为线上V4.11现行功能。

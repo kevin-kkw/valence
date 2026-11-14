@@ -65,3 +65,8 @@
 ## V4.11 上线及当前文档入口
 
 网站已V4.11：发布源码fa84b4c60563e1b1771f06b2388b8c05a1a61872，网站cedb0e4222a4b4eeee97988b81cf81ee1f1d96d1，Actions43568158498 success；release.json与全部20个HTML/JS/CSS哈希一致。用户要求核对文档，现统一[现行规则](prototypes/valence-chain-lab/docs/current-rules.md)与[文档索引](prototypes/valence-chain-lab/docs/README.md)，专题维护当前规格，旧版本说明归档并明确标注历史；原始GDD为长期愿景，不是当前实现。文档同步不重新部署游戏。后续代码更新仍需单独部署授权。
+
+
+## 后续主线结构：已确认，未实现
+
+见[后续设计](prototypes/valence-chain-lab/docs/future/campaign-progression.md)。用户确认：装备测试后开放前三任务自由选择；每图特别遗物首次成功通关必得，必须带回基地才永久获得；三种遗物拼钥匙后第四隐藏地图才开放，开门打最终Boss并揭秘密。线索发现可跨图跨局，核爆只是少数机会形成的终极构筑之一。剧情真相、具体配方、存档、第四图遗物与各门联系仍待讨论。当前线上仍V4.11，这些功能尚未实现，不构成部署授权。
