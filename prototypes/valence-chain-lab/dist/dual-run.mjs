@@ -38,7 +38,9 @@ export class DualRun extends Run{
  onAcidSplash(b,e,bounds){acidSwarm(this,b,e,bounds)}
  advanceEvolutions(dt,bounds){updateEvolutions(this,dt,bounds)}
  canEndWave(){if(![1,3].includes(this.wave)||this.guaranteedGunWaves.includes(this.wave))return true;if(!this.enemies.some(e=>e.hp>0&&!e.child&&e.type!==4&&e.type!==6))this.spawnEnemy(this.wave===1?0:1,this.x<900?Math.min(1100,this.x+240):Math.max(100,this.x-240),Math.max(80,Math.min(720,this.y)));return false}
- endWave(){this.intermissionActive=this.wave<10;super.endWave();this.evolutionZones=[];this.saveWeapon();for(let i=0;i<2;i++){const w=this.weapons[i];w.waterParticles=[];w.waterImpacts=[];w.waterMuzzle=null;w.waterEmitting=false;w.condenser.particles=[];w.condenser.impacts=[];w.condenser.muzzle=null}this.loadWeapon(this.selectedWeapon)}
+ get waitingForLoot(){return false}
+ grantWaveSupplies(){}
+ endWave(){if(this.state==='playing'&&this.hp>0){for(const d of this.drops)if(['equipment','gun'].includes(d.kind)&&!d.collected)this.collect(d)}this.drops=this.drops.filter(d=>!['diamond','substance'].includes(d.kind));this.intermissionActive=this.wave<10;super.endWave();this.evolutionZones=[];this.saveWeapon();for(let i=0;i<2;i++){const w=this.weapons[i];w.waterParticles=[];w.waterImpacts=[];w.waterMuzzle=null;w.waterEmitting=false;w.condenser.particles=[];w.condenser.impacts=[];w.condenser.muzzle=null}this.loadWeapon(this.selectedWeapon)}
  nextWave(){if(this.intermissionActive||this.pendingLoot.length||this.pendingAbilityCount)return false;const result=super.nextWave();if(result){this.saveWeapon();for(const w of this.weapons)w.shot=0;this.loadWeapon(this.selectedWeapon)}return result}
  step(dt,input={}){super.step(dt,input);this.saveWeapon()}
 }
