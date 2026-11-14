@@ -415,3 +415,8 @@ Sites 原来的源码托管是服务管理的独立 Git 仓库，与 `kevin-kkw/
 ## 后续AI剧情：已确认方向，尚未实现
 
 引导者为AI，初期正常交流，遭侵染后逐渐沉默、仅报error；第四图动机来自寻找/修复失联AI。最终Boss是无法辨认玩家的AI本身，保留救回它的可能，具体条件与结局未定。不能写成AI从一开始就有意作恶；侵染来源及实验真正目的待讨论。详见[后续主线设计](prototypes/valence-chain-lab/docs/future/campaign-progression.md)。线上仍V4.11，无新实现或部署授权。
+
+
+## 后续终局标准：必须救回AI
+
+用户确认仅击败Boss而未救回AI属于整场游戏失败，救回AI才算通关。核心样本依靠此前线索发现，线索应公平可回看。具体条件、失败重试与遗物/钥匙/永久存档处理尚未定，不默认直接重试或清空存档。见[后续主线设计](prototypes/valence-chain-lab/docs/future/campaign-progression.md)。当前游戏仍V4.11，无新实现或部署授权。
