@@ -1,4 +1,5 @@
 export const MAX_LEVEL=10;
+export const HEALTH_PICKUP=Object.freeze({chance:.03,healing:10,radius:24});
 export const ELEMENTS=Object.freeze({H:'氢',O:'氧',C:'碳',Na:'钠',Cl:'氯',Fe:'铁'});
 export const MATERIALS=Object.freeze({
  water:{name:'水',formula:'H₂O',color:'#77d9f5',label:'装填介质',atoms:{H:2,O:1},fact:'水可作冷却介质。这里装填水来改装枪，不发生化学反应。'},
