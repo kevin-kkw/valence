@@ -1,3 +1,9 @@
+# V5.0 主线Demo候选
+
+本分支demo/campaign-v5为最新本地多地图demo，未部署；线上/main仍V4.11。先阅读[试玩指南](prototypes/valence-chain-lab/docs/campaign-demo-v5.md)，源码入口prototypes/valence-chain-lab/dist/index.html。加速试玩保留十关与完整流程，便于体验主线；详细实现/验证见指南。
+
+---
+
 # VALENCE · 当前V4.11
 
 在线试玩：https://kevin-wang.com/games/valence/
