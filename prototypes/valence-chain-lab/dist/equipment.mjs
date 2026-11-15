@@ -14,7 +14,7 @@ export const ACCESSORIES=Object.freeze({
  rail:{name:'磁轨模块',gun:'iron',description:'电磁加速主枪铁弹，提升弹速和贯穿。',science:'机械供电磁轨加速铁弹，不发生化学反应。'},
  shards:{name:'碎片回收盒',gun:'iron',description:'回收攻击过程的铁屑，蓄满后释放近身碎片。',science:'机械收集与再发射，铁屑产量是游戏抽象。'}
 });
-export const MUZZLES=Object.freeze({focus:{name:'聚束枪口',description:'射程+35%，直接伤害+10%。'},spread:{name:'扩散枪口',description:'扩大攻击覆盖；电弧跳距+40%，目标数+1。'},rapid:{name:'连发枪口',description:'攻击间隔缩短25%，保持完整单发伤害。'},fork:{name:'分叉枪口',description:'双方向发射，每路完整伤害。'}});
+export const MUZZLES=Object.freeze({focus:{name:'聚束枪口',description:'射程+35%，直接伤害+10%。'},spread:{name:'扩散枪口',description:'扩大攻击覆盖；电弧跳距+40%，目标数+1。'},rapid:{name:'连发枪口',description:'攻击间隔缩短25%，保持完整单发伤害。'},fork:{name:'分叉枪口',description:'双方向发射，每路完整伤害；水枪保留正面瞄准水流，另一路侧向分流。'}});
 export function equipmentStats(base,gun,slots,muzzle){const s={...base};if(muzzle==='focus'){s.range*=1.35;s.damage*=1.1}if(muzzle==='spread'){s.halfAngle*=1.5;s.radius=13;s.chainRange*=1.4;s.chainCount+=1}if(muzzle==='rapid')s.interval*=.75;if(slots.includes('rail')&&gun==='iron'){s.projectileSpeed*=1.35;s.pierce+=1}return s}
 export function offerAccessories(gun,slots,random){const available=Object.keys(ACCESSORIES).filter(k=>!slots.includes(k));const own=available.filter(k=>ACCESSORIES[k].gun===gun),other=available.filter(k=>ACCESSORIES[k].gun!==gun);for(let i=other.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[other[i],other[j]]=[other[j],other[i]]}return [...own,...other].slice(0,3)}
 export function updateAccessories(r,dt,bounds,shared=true){

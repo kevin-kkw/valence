@@ -10,6 +10,7 @@ try{
  await call('Page.addScriptToEvaluateOnNewDocument',{source:`globalThis.__audioContexts=[];const Native=window.AudioContext;window.AudioContext=class extends Native{constructor(...args){super(...args);globalThis.__audioContexts.push(this)}}`});
  await call('Page.navigate',{url});await new Promise(r=>setTimeout(r,1800));
  const before=await js(`({contexts:__audioContexts.length,label:document.querySelector('#sound').getAttribute('aria-label')})`);if(before.contexts!==0||before.label!=='关闭音效')throw Error('Audio must wait for gesture');
+ await js(`document.querySelector('#start').scrollIntoView({block:'center'})`);
  const rect=await js(`(()=>{const r=document.querySelector('#start').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}})()`);
  for(const type of ['mousePressed','mouseReleased'])await call('Input.dispatchMouseEvent',{type,...rect,button:'left',clickCount:1});await new Promise(r=>setTimeout(r,100));
  const started=await js(`__audioContexts.map(c=>c.state)`);if(started[0]!=='running')throw Error('User gesture did not unlock real AudioContext: '+started);
