@@ -1,6 +1,6 @@
 # V5.5 主线Demo试玩指南
 
-V5.5主线版本，用户已授权本次部署；线上状态以release.json为准。主代码位于dist，使用MissionRun，旧DualRun保留为兼容战斗基础。
+V5.5主线版本已部署：https://kevin-wang.com/games/valence/；版本与源码提交以release.json为准。主代码位于dist，使用MissionRun，旧DualRun保留为兼容战斗基础。
 
 ## 从头玩
 

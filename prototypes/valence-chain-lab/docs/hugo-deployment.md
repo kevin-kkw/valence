@@ -30,3 +30,10 @@ python3 -m unittest discover -s tests -v
 ## V4.11 发布记录
 
 用户明确授权部署V4.11，取消免费材料补给并采用当前关末收取规则。源码提交fa84b4c60563e1b1771f06b2388b8c05a1a61872，网站提交cedb0e4222a4b4eeee97988b81cf81ee1f1d96d1，Actions43568158498成功。公开release.json与20个HTML/JS/CSS文件哈希逐一匹配。当前版本和后续部署状态以release.json为准，旧授权不延续至后续版本。
+
+
+## V5.5 已部署成功
+
+用户明确授权“可以部署”。https://kevin-wang.com/games/valence/ 已为V5.5。发布源码af39da17264dbad33000f3c18b06c5d24127ac47，网站8513f8bcd164dd9c6173a7460d8a9a92dc7083e7，Actions43685210238 completed/success。46模型文件及UI/语法、指纹模块UI、网站静态hash/引用、指纹版与公开站点完整Chromium主线流程通过。公开release.json与24 JS+CSS+HTML共26文件核验一致；HTML由Cloudflare注入统计beacon，移除这一个已识别注入片段后原文hash一致，其余25资源原始hash直接一致。
+
+本次包含主线多幕、整局装备资源能力继承、新幕满血、原4.11场地、基地进阶显示/水枪分叉修复、标准主入口与折叠debug、无时限最终三形态Boss/掉AI核心修复结算，快速模式继续削弱。此授权仅本版，后续改动不得自动部署。

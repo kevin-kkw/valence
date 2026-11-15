@@ -6,13 +6,13 @@
 
 入口dist/index.html。正常体验使用主按钮“标准装备测试”；“快速装备测试”仅在折叠的开发调试区，加速模式约2分钟/图（首领战、整备和HUNT加时另计），标准训练/前三外勤每场基础10分钟，最终幕为无时限决战。详见[Demo指南](docs/campaign-demo-v5.md)。
 
-当前制作工作区/workspace/valence-campaign-demo，分支demo/campaign-v5；当前用户已授权发布V5.5，源码与Hugo快照同步中。高级隐藏配方与核爆等终极构筑为后续方向。
+当前制作工作区/workspace/valence-campaign-demo，分支demo/campaign-v5；V5.5已部署，公开入口https://kevin-wang.com/games/valence/，发布源码和网站快照见release.json。高级隐藏配方与核爆等终极构筑为后续方向。
 
 ---
 
 # VALENCE · 链式反应
 
-本次发布版本 **V5.5**：[开始游戏](https://kevin-wang.com/games/valence/)。静态网页游戏，普通枪开局、双枪并行、十关生存，化学物质用于改装武器。
+当前线上版本 **V5.5**：[开始游戏](https://kevin-wang.com/games/valence/)。静态网页游戏，普通枪开局、双枪并行、十关生存，化学物质用于改装武器。
 
 ## 当前规则
 
