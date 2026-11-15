@@ -4,7 +4,7 @@
 
 ---
 
-# VALENCE V5.5 多地图主线
+# VALENCE 多地图主线
 
 测试新型装备 → 三项外勤自由选择 → 成功带回三件遗物 → 钥匙解锁微观核心 → 面对被侵染的AI → 寻找恢复联系的可能。
 
@@ -12,7 +12,7 @@
 
 入口dist/index.html。正常体验使用主按钮“标准装备测试”；“快速装备测试”仅在折叠的开发调试区，加速模式约2分钟/图（首领战、整备和HUNT加时另计），标准训练/前三外勤每场基础10分钟，最终幕为无时限决战。详见[Demo指南](docs/campaign-demo-v5.md)。
 
-当前制作工作区/workspace/valence-campaign-demo，分支demo/campaign-v5；V5.5已部署，公开入口https://kevin-wang.com/games/valence/，发布源码和网站快照见release.json。高级隐藏配方与核爆等终极构筑为后续方向。
+当前制作工作区/workspace/valence-campaign-demo，分支demo/characters-v57；V5.8发布，公开入口https://kevin-wang.com/games/valence/，发布源码和网站快照见release.json。高级隐藏配方与核爆等终极构筑为后续方向。
 
 ---
 

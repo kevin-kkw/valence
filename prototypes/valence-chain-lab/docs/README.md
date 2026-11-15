@@ -1,9 +1,12 @@
 # 文档索引
 
-当前线上版本V5.5。读规则从[现行规则](current-rules.md)开始，不从历史迭代日志倒推。
+当前发布版本V5.8。读规则从[现行规则](current-rules.md)开始，不从历史迭代日志倒推。
 
 | 当前文档 | 内容 |
 |---|---|
+| [人物数值](character-balance-v58.md) | 三人初始差异、专长和旧档兼容 |
+| [人物形象](character-roster-v57.md) | 选人、立绘、战斗形象与图片源文件 |
+| [地图怪物](world-bestiaries-v56.md) | 三外勤24种独立怪物 |
 | [现行规则](current-rules.md) | 当前玩法总规格、掉落、关末收取与关卡 |
 | [枪械与装备](weapons.md) | 配方、十二配件、四种通用枪口 |
 | [数值总表](weapon-balance-discussion.md) | 六枪Lv1/Lv10 DPS、物质成长与+3/+6形态 |
