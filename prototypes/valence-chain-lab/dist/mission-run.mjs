@@ -17,6 +17,7 @@ export class MissionRun extends DualRun{
   if(!this.profile.unlocked(id)||(gun!=='normal'&&!Object.hasOwn(RECIPES,gun)))return false;
   if(!super.start(gun))return false;
   this.missionId=id;this.quick=!!quick;this.isEquipmentTest=false;
+  if(id==='training'&&this.quick)this.abilities.damage*=100;
   this.guaranteedGunTimes=Object.fromEntries([1,3].map(w=>[w,(this.quick?QUICK_SECONDS[w-1]:WAVE_SECONDS[w-1])*(.5+Math.min(.999999,Math.max(0,this.random()))*.35)]));
   resetWorld(this);return true;
  }
