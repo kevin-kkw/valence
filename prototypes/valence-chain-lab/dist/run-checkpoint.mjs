@@ -1,6 +1,7 @@
 import {BASE_ABILITIES,ABILITIES,MATERIALS,RECIPES,MAX_LEVEL} from './catalog.mjs';
 import {ACCESSORIES,MUZZLES} from './equipment.mjs';
 import {Condenser} from './condenser.mjs';
+import {DEFAULT_CHARACTER,isCharacterId,characterBaseAbilities,applyCharacterTraits} from './characters.mjs';
 const copy=value=>JSON.parse(JSON.stringify(value));
 const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 const keys=(v,list)=>object(v)&&Object.keys(v).every(k=>list.includes(k))&&list.every(k=>Object.hasOwn(v,k));
@@ -13,11 +14,13 @@ const charge=v=>object(v)&&Object.entries(v).every(([k,n])=>known(k,ACCESSORIES)
 const counts=['xp','level','diamonds','kills','damageDone','burnDamage','burnHits','picked'];
 export function captureBuild(r){
  r.saveWeapon();
- return copy({hp:r.hp,abilities:r.abilities,lab:Object.fromEntries(['inventory','furnace','products','discoveries','history','ignition'].map(k=>[k,r.lab[k]])),selectedWeapon:r.selectedWeapon,weapons:r.weapons.map(w=>({gun:w.gun,attachments:w.attachments,muzzle:w.muzzle,accessoryCharge:w.accessoryCharge,condenser:{charge:w.condenser.charge,equipped:w.condenser.equipped},evolutionShots:w.evolutionShots||0})),...Object.fromEntries(counts.map(k=>[k,r[k]]))});
+ return copy({characterId:r.characterId,characterTraitsVersion:1,hp:r.hp,abilities:r.abilities,lab:Object.fromEntries(['inventory','furnace','products','discoveries','history','ignition'].map(k=>[k,r.lab[k]])),selectedWeapon:r.selectedWeapon,weapons:r.weapons.map(w=>({gun:w.gun,attachments:w.attachments,muzzle:w.muzzle,accessoryCharge:w.accessoryCharge,condenser:{charge:w.condenser.charge,equipped:w.condenser.equipped},evolutionShots:w.evolutionShots||0})),...Object.fromEntries(counts.map(k=>[k,r[k]]))});
 }
 export function validBuild(b){
- if(!keys(b,['hp','abilities','lab','selectedWeapon','weapons',...counts])||!keys(b.abilities,Object.keys(BASE_ABILITIES)))return false;
- if(!Object.values(b.abilities).every(v=>number(v))||Object.entries(BASE_ABILITIES).some(([k,min])=>b.abilities[k]<min)||b.abilities.defense>.600001||b.abilities.dodge>.400001||b.abilities.crit>.800001||!number(b.hp,.000001,b.abilities.maxHp))return false;
+ const hasCharacter=object(b)&&Object.hasOwn(b,'characterId'),hasTraits=object(b)&&Object.hasOwn(b,'characterTraitsVersion');
+ if(hasTraits&&(b.characterTraitsVersion!==1||!hasCharacter))return false;
+ if(!keys(b,['hp','abilities','lab','selectedWeapon','weapons',...counts,...(hasCharacter?['characterId']:[]),...(hasTraits?['characterTraitsVersion']:[])])||(hasCharacter&&!isCharacterId(b.characterId))||!keys(b.abilities,Object.keys(BASE_ABILITIES)))return false;
+ if(!Object.values(b.abilities).every(v=>number(v))||Object.entries(hasTraits?characterBaseAbilities(b.characterId):BASE_ABILITIES).some(([k,min])=>b.abilities[k]<min)||b.abilities.defense>.600001||b.abilities.dodge>.400001||b.abilities.crit>.800001||!number(b.hp,.000001,b.abilities.maxHp))return false;
  if(!counts.every(k=>number(b[k]))||!integer(b.level,1)||!integer(b.xp)||!integer(b.diamonds)||![0,1].includes(b.selectedWeapon))return false;
  const lab=b.lab;if(!keys(lab,['inventory','furnace','products','discoveries','history','ignition'])||!['inventory','furnace','products'].every(k=>stock(lab[k]))||!ids(lab.discoveries,RECIPES)||typeof lab.ignition!=='boolean'||!Array.isArray(lab.history)||lab.history.length>100000||!lab.history.every(v=>keys(v,['id','level'])&&known(v.id,RECIPES)&&integer(v.level,1,MAX_LEVEL)))return false;
  if(!Array.isArray(b.weapons)||b.weapons.length!==2)return false;
@@ -27,9 +30,10 @@ export function validBuild(b){
  });
 }
 export function restoreBuild(r,b){
- const saved=copy(b);r.abilities=saved.abilities;r.hp=saved.hp;Object.assign(r.lab,saved.lab);for(const k of counts)r[k]=saved[k];
+ if(!validBuild(b))return false;
+ const saved=copy(b);r.characterId=Object.hasOwn(saved,'characterId')?saved.characterId:DEFAULT_CHARACTER;r.abilities=Object.hasOwn(saved,'characterTraitsVersion')?saved.abilities:applyCharacterTraits(saved.abilities,r.characterId);r.characterTraitsVersion=1;r.hp=Math.min(saved.hp,r.abilities.maxHp);Object.assign(r.lab,saved.lab);for(const k of counts)r[k]=saved[k];
  for(let i=0;i<2;i++){const w=r.weapons[i],s=saved.weapons[i];Object.assign(w,s);w.condenser=new Condenser();Object.assign(w.condenser,s.condenser);w.shot=0;w.waterParticles=[];w.waterImpacts=[];w.targetId=null;}
- r.loadWeapon(saved.selectedWeapon);
+ r.loadWeapon(saved.selectedWeapon);return true;
 }
 const outcomes={training:'trainingSuccess',industrial:'missionSuccess',mine:'missionSuccess',ecology:'missionSuccess'};
 export function captureCheckpoint(r){return copy({version:1,missionId:r.missionId,quick:r.quick,completedMissions:r.completedMissions,state:r.state,returningToBase:!!r.returningToBase,outcome:r.missionOutcome,build:captureBuild(r),pending:{loot:r.pendingLoot,gun:r.pendingGun,upgradeChoices:r.upgradeChoices,rewardChoices:r.rewardChoices,rewardKind:r.rewardKind,rewardTaken:r.rewardTaken,intermissionActive:r.intermissionActive}})}

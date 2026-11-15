@@ -6,7 +6,7 @@ globalThis.document={getElementById:element,activeElement:null,hidden:false,addE
 globalThis.window={addEventListener(n,f){events.set(`window:${n}`,f)}};globalThis.requestAnimationFrame=f=>frames.push(f);globalThis.devicePixelRatio=1;
 const {run}=await import('../dist/app.mjs');
 let clock=performance.now();function tick(){clock+=40;frames.shift()(clock)}
-function click(id){assert.equal(element(id).disabled,false,id);assert.equal(typeof element(id).onclick,'function',id);element(id).onclick()}
+function click(id){assert.equal(element(id).disabled,false,id);assert.equal(typeof element(id).onclick,'function',id);element(id).onclick();if(['start','startQuick','restart'].includes(id)&&run.state==='character'){element('character-daqi').onclick();element('confirmCharacter').onclick()}}
 
 run.endCurrentRun();run.start();run.spawn=999;run.pickupGun('flame');run.pickupGun('water');run.withWeapon(0,()=>{run.attachments=['condenser',null]});run.withWeapon(1,()=>{run.attachments=['conductive',null]});
 function reward(kind,choices){run.state='playing';run.wave=2;run.pendingLoot=[{kind:'equipment',rewardKind:kind}];run.drops=[];run.enemies=[];run.endWave();run.rewardChoices=choices;tick()}

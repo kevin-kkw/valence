@@ -8,7 +8,7 @@ await call('Page.navigate',{url:gameUrl});await new Promise(r=>setTimeout(r,2500
 const evalJS=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(r.exceptionDetails.exception?.description);return r.result.value};
 
 try{
- await evalJS(`document.querySelector('#start').click();document.querySelector('#sidebarCharacter').click()`);
+ await evalJS(`document.querySelector('#start').click();if(document.querySelector('#character-daqi')){document.querySelector('#character-daqi').click();document.querySelector('#confirmCharacter').click();}document.querySelector('#sidebarCharacter').click()`);
  await evalJS(`(async()=>{const {run:r}=await import(document.querySelector('script[type=module]').src);globalThis.__characterRun=r;r.spawn=999;r.shot=999;r.enemies=[];r.hp=63.5;Object.assign(r.abilities,{maxHp:120,damage:24,attackSpeed:1.24,defense:.1,crit:.16,dodge:.05});r.collect({kind:'diamond',value:40,x:r.x,y:r.y})})()`);await new Promise(r=>setTimeout(r,100));
  const view=await evalJS(`({state:__characterRun.state,text:document.querySelector('#abilityStats').innerText,hidden:document.querySelector('#characterPane').classList.contains('hidden'),equipmentContains:document.querySelector('#equipmentPane').contains(document.querySelector('#abilityStats'))})`);if(view.state!=='playing'||view.hidden||view.equipmentContains||!view.text.includes('63.5 / 120')||!view.text.includes('待选能力 3')||!view.text.includes('1.24×')||!view.text.includes('基础 18 · 升级 +6'))throw Error(JSON.stringify(view));
  const report=[];
