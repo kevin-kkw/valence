@@ -239,13 +239,17 @@ html:has(.character-screen){overflow:hidden}
 .character-traits{display:flex;flex-direction:column;gap:6px;padding:12px 0;margin:10px 0;border-top:1px solid #3e5746;border-bottom:1px solid #3e5746;font-size:11px;line-height:1.55}.trait-increase{color:#b9dfa4}.trait-decrease{color:#edba8a}.trait-weapon{display:block;margin-top:4px;color:#b3dfe3;font-size:11px;font-weight:600}.participant-identity .character-traits{margin-bottom:0}.character-choice .character-specialty{margin-bottom:0}
 
 /* Base and character selection use document flow, outside the battle clipping layout. */
-html.selection-layout{overflow:auto}
+html.selection-layout{overflow:auto!important}
 .selection-layout .workspace{grid-template-columns:minmax(0,1fr)}
 .selection-layout .sidebar{display:none}
 .selection-layout .field-panel{overflow:visible;position:static;z-index:auto}
 .selection-layout .field-top,.selection-layout .field-bottom{display:none}
 .selection-layout .stage{height:auto;aspect-ratio:auto;min-height:0;isolation:auto;background:transparent}
-.selection-layout .screen-overlay.base-screen,.selection-layout .screen-overlay.character-screen{position:relative;inset:auto;width:100%;max-height:none;overflow:visible;min-width:0;backdrop-filter:none;border-radius:10px}
+.selection-layout #screenOverlay{position:relative;inset:auto;width:100%;max-height:none;overflow:visible;min-width:0;backdrop-filter:none;border-radius:10px}
 .selection-layout .screen-card{min-width:0}
 
 .selection-layout .stage>:not(.screen-overlay){display:none!important}
+
+/* All blocking decisions share the same unclipped document flow. */
+.selection-layout #screenCard{width:100%;min-width:0;max-height:none;overflow:visible}
+@media(max-width:600px){.selection-layout #screenOverlay{padding:16px 12px}.selection-layout .ability-options{grid-template-columns:1fr}.selection-layout .ability-option p{min-height:0}}
