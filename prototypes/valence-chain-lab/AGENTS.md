@@ -229,3 +229,7 @@ V5.8.1已发布：源码867e55f80c9314f55f6fc80fde09df2602e027c2，网站4997c71
 
 
 V5.8.2已部署：源码6298bf6e25c2f0baea410ad856b16783c46c453f，网站dcda5abb42b0e8466eb94ee9fd89f84692245ae4，Actions43693812602 completed/success。公开release.json为5.8.2，34页面与资源hash匹配（HTML仅去除已识别Cloudflare统计注入）。55模型+全部UI/语法、九视口207组合720控件实际命中/滚轮、15地图几何、实际安全安装/替换和完整主线浏览器回归通过。用户明确本次修复后直接提交部署；后续变更仍需另行授权。
+
+
+## V5.8.3 本地：公共标题栏去重
+用户报告title和音乐控制套娃。移除基地页旧全屏设计遗留的baseBrand/baseSound/baseArchive工具栏和重复版本号，仅保留全局页头；manageSave移至基地底部，相关操作绑定仍在。见docs/shared-header-v583.md。当前本地候选，线上仍V5.8.2。
