@@ -184,3 +184,10 @@ V5.2只恢复第一幕布局不完整；现所有地图移除新增紧凑战斗�
 用户明确授权“可以部署”。https://kevin-wang.com/games/valence/ 已为V5.5。发布源码af39da17264dbad33000f3c18b06c5d24127ac47，网站8513f8bcd164dd9c6173a7460d8a9a92dc7083e7，Actions43685210238 completed/success。46模型文件及UI/语法、指纹模块UI、网站静态hash/引用、指纹版与公开站点完整Chromium主线流程通过。公开release.json与24 JS+CSS+HTML共26文件核验一致；HTML由Cloudflare注入统计beacon，移除这一个已识别注入片段后原文hash一致，其余25资源原始hash直接一致。
 
 本次包含主线多幕、整局装备资源能力继承、新幕满血、原4.11场地、基地进阶显示/水枪分叉修复、标准主入口与折叠debug、无时限最终三形态Boss/掉AI核心修复结算，快速模式继续削弱。此授权仅本版，后续改动不得自动部署。
+
+
+## V5.6 本地：三外勤完全独立怪物
+
+用户明确选择完全独立。industrial/mine/ecology各8专属种，共24种；前8关逐关新怪，第3/5/7精英基于本图对应新怪强化，9/10不加新普通怪，子体及首领召唤也本地分类。训练原怪与核心最终Boss不变。新map-monsters.mjs负责物种/行为及边界/人口/攻击并发限制，map-monster-visuals.mjs负责24独立轮廓、动作预警和弹体。简报与图鉴Canvas预览。
+
+不加入元素免疫/武器硬克制，不改场地/边界/布局，不改构筑/成长/拾取规则或新幕满血。仅本地候选，线上仍5.5，用户尚未授权本版部署。代码工作分支demo/world-bestiaries-v56，方案docs/world-bestiaries-v56.md及superpowers规格/计划。独立审查的靠墙预警落点与原型键输入问题均有回归并已修复。

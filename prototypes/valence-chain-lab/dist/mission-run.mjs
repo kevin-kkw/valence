@@ -1,3 +1,4 @@
+import {mapSpawnExtras,updateMapMonster,onMapMonsterDeath,mapMonsterDamage} from './map-monsters.mjs';
 import {DualRun} from './dual-run.mjs';
 import {RECIPES} from './catalog.mjs';
 import {WAVE_SECONDS} from './campaign.mjs';
@@ -75,7 +76,7 @@ export class MissionRun extends DualRun{
  }
  clearArchive(){this.endCurrentRun();this.profile.reset();return true}
  spawnEnemy(type,x,y,extra={}){
-  const e=super.spawnEnemy(type,x,y,extra);if(!e)return e;
+  const e=super.spawnEnemy(type,x,y,mapSpawnExtras(this.missionId,type,extra,this.wave));if(!e)return e;
   const boss=type===4||type===6;
   if(this.quick){e.hp*=boss?.25:.55;e.maxHp*=boss?.25:.55;e.damage*=.6}
   if(boss&&e.special&&this.missionId&&this.missionId!=='training'){e.missionBoss=this.missionId;e.missionBossTier=this.wave===9?'fore':'guardian';e.displayName=this.wave===9?({industrial:'排放巡检机',mine:'巡层晶簇',ecology:'循环看守体',core:'身份校验单元'}[this.missionId]):this.mission.bossName}
@@ -96,8 +97,10 @@ export class MissionRun extends DualRun{
   if(['trueEnding','finalFailure'].includes(this.missionOutcome)){this.runActive=false;this._checkpoint=null;this.persistCheckpoint()}
   else{if(!this.completedMissions.includes(this.missionId))this.completedMissions.push(this.missionId);this.saveCheckpoint()}
  }
+ updateMapEnemy(e,dt,bounds){return updateMapMonster(this,e,dt,bounds)}
  hit(enemy,damage,burn=false){
-  const wasAlive=enemy.hp>0;super.hit(enemy,damage,burn);
+  const wasAlive=enemy.hp>0;super.hit(enemy,mapMonsterDamage(this,enemy,damage,burn),burn);
+  if(wasAlive&&enemy.hp<=0)onMapMonsterDeath(this,enemy);
   if(this.missionId==='core'&&enemy.id===this.coreBossId&&wasAlive&&enemy.hp<=0){
    if(this.hp<=0){this.state='dead';this.settleMission();return}
    this.coreDefeated=true;this.state='playing';this.clearCoreCombat();
