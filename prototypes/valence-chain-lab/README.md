@@ -1,4 +1,6 @@
-# V5.8 人物属性与武器专长
+# V5.8.1 选择页面布局修复
+
+选人及基地选关隐藏状态栏，使用全宽、随内容增高的页面，战斗恢复原布局。见[修复记录](docs/release-v581.md)。
 
 新增大奇、强尼、朵朵的选人卡、少年立绘、职业/擅长/故事简介与对应战斗小人；身份跨幕及读档保留。包含V5.6独立怪物与V5.6.1实验室仅升级修复。本次发布新增实际人物属性与武器专长，见[数值表](docs/character-balance-v58.md)。见[人物设计](docs/character-roster-v57.md)、[怪物设计](docs/world-bestiaries-v56.md)和[图片源文件](docs/design-assets/README.md)。
 
@@ -18,7 +20,7 @@
 
 # VALENCE · 链式反应
 
-当前发布版本 **V5.8**：[开始游戏](https://kevin-wang.com/games/valence/)。静态网页游戏，普通枪开局、双枪并行、十关生存，化学物质用于改装武器。
+当前发布版本 **V5.8.1**：[开始游戏](https://kevin-wang.com/games/valence/)。静态网页游戏，普通枪开局、双枪并行、十关生存，化学物质用于改装武器。
 
 ## 当前规则
 
