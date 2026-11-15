@@ -3,24 +3,73 @@ import {RECIPES} from './catalog.mjs';
 import {WAVE_SECONDS} from './campaign.mjs';
 import {CampaignProfile,MISSIONS} from './progression.mjs';
 import {resetWorld,updateWorld} from './worlds.mjs';
+import {captureBuild,restoreBuild,captureCheckpoint,validCheckpoint,restoreCheckpoint} from './run-checkpoint.mjs';
 export const QUICK_SECONDS=[8,9,10,11,12,12,12,12,12,16];
 export class MissionRun extends DualRun{
  constructor(random=Math.random,profile=new CampaignProfile()){
-  super(random);this.profile=profile;this.missionId='training';this.quick=false;
+  super(random);this.profile=profile;this.missionId='training';this.quick=false;this.runActive=false;this.completedMissions=[];this.returningToBase=false;this._checkpoint=null;this.sessionStorageAvailable=!!profile.storage;
+  try{const raw=profile.storage?.getItem(this.checkpointKey);if(raw){const c=JSON.parse(raw);if(c&&validCheckpoint(c,profile)){restoreCheckpoint(this,c);this._checkpoint=c;resetWorld(this)}}}catch{this.sessionStorageAvailable=false}
  }
- // Run's constructor calls reset dynamically: keep profile/world work in startMission.
- reset(){super.reset();this.sampleRecovered=false;this.missionOutcome=null;this.missionSettled=false}
+ get checkpointKey(){return this.profile.key+'.run.v1'}
+ // Run's constructor calls reset dynamically: keep profile/world work in start methods.
+ reset(){super.reset();this.sampleRecovered=false;this.missionOutcome=null;this.missionSettled=false;this.returningToBase=false;this.isEquipmentTest=false}
  get mission(){return MISSIONS[this.missionId]||MISSIONS.training}
  get duration(){return this.quick?QUICK_SECONDS[this.wave-1]:super.duration}
- start(gun='normal'){return this.startMission(this.missionId||'training',{quick:!!this.quick,gun})}
- startMission(id,{quick=false,gun='normal'}={}){
-  if(!this.profile.unlocked(id)||(gun!=='normal'&&!Object.hasOwn(RECIPES,gun)))return false;
-  if(!super.start(gun))return false;
-  this.missionId=id;this.quick=!!quick;this.isEquipmentTest=false;
-  if(id==='training'&&this.quick)this.abilities.damage*=100;
-  this.guaranteedGunTimes=Object.fromEntries([1,3].map(w=>[w,(this.quick?QUICK_SECONDS[w-1]:WAVE_SECONDS[w-1])*(.5+Math.min(.999999,Math.max(0,this.random()))*.35)]));
-  resetWorld(this);return true;
+ get attackMultiplier(){return this.missionId==='training'&&this.quick?100:1}
+ get stats(){const stats=super.stats;return {...stats,damage:stats.damage*this.attackMultiplier,burnDps:stats.burnDps*this.attackMultiplier}}
+ canTravel(id){
+  if(id==='training')return !this.runActive;
+  return this.runActive&&this.state==='menu'&&this.completedMissions.includes('training')&&!this.completedMissions.includes(id)&&this.profile.unlocked(id)&&!this.intermissionActive&&!this.pendingLoot.length&&!this.pendingGun&&!this.pendingAbilityCount;
  }
+ start(gun='normal'){return this.startNewRun({quick:!!this.quick,gun})}
+ startNewRun({quick=false,gun='normal'}={}){
+  if(this.runActive||(gun!=='normal'&&!Object.hasOwn(RECIPES,gun)))return false;
+  this._checkpoint=null;this.persistCheckpoint();
+  if(!super.start(gun))return false;
+  this.runActive=true;this.completedMissions=[];this.configureAct('training',quick);return true;
+ }
+ configureAct(id,quick){
+  this.missionId=id;this.quick=!!quick;this.isEquipmentTest=false;
+  this.guaranteedGunTimes=Object.fromEntries([1,3].map(w=>[w,(this.quick?QUICK_SECONDS[w-1]:WAVE_SECONDS[w-1])*(.5+Math.min(.999999,Math.max(0,this.random()))*.35)]));
+  resetWorld(this);
+ }
+ startMission(id,{quick=false,gun='normal'}={}){
+  if(id==='training')return this.startNewRun({quick,gun});
+  if(!this.canTravel(id))return false;
+  this.saveCheckpoint();const build=captureBuild(this);this.reset();restoreBuild(this,build);this.state='playing';this.configureAct(id,quick);return true;
+ }
+ persistCheckpoint(){
+  if(!this.profile.storage){this.sessionStorageAvailable=false;return}
+  try{this.profile.storage.setItem(this.checkpointKey,JSON.stringify(this._checkpoint));this.sessionStorageAvailable=true}catch{this.sessionStorageAvailable=false}
+ }
+ saveCheckpoint(){if(this.runActive&&this.missionSettled&&!this.isEquipmentTest){this._checkpoint=captureCheckpoint(this);this.persistCheckpoint()}}
+ endCurrentRun(){this.runActive=false;this.completedMissions=[];this.returningToBase=false;this._checkpoint=null;this.persistCheckpoint();this.reset();this.state='menu';return true}
+ returnToBase(){
+  if(this.isEquipmentTest||!this.runActive){this.endCurrentRun();return true}
+  if(!this.missionSettled||!['trainingSuccess','missionSuccess'].includes(this.missionOutcome))return false;
+  this.returningToBase=true;this.state='lab';this.intermissionActive=true;this.advanceIntermission();this.saveCheckpoint();return true;
+ }
+ advanceIntermission(){
+  super.advanceIntermission();
+  if(this.returningToBase&&!this.intermissionActive&&this.state==='lab'){this.returningToBase=false;this.state='menu';this.upgradeChoices=[];this.rewardChoices=[];this.rewardKind=null}
+  if(this.returningToBase||this.state==='menu')this.saveCheckpoint();
+ }
+ chooseAbility(id){const result=super.chooseAbility(id);if(result)this.saveCheckpoint();return result}
+ chooseReward(id,position=null){const result=super.chooseReward(id,position);if(result)this.saveCheckpoint();return result}
+ resolveGunPickup(index){const result=super.resolveGunPickup(index);if(result)this.saveCheckpoint();return result}
+ exportArchive(){return JSON.stringify({version:1,profile:this.profile.data,checkpoint:this.runActive?this._checkpoint:null})}
+ importArchive(text){
+  try{
+   if(typeof text!=='string'||text.length>2000000)return false;
+   const archive=JSON.parse(text),legacy=archive&&Object.hasOwn(archive,'training'),profileData=legacy?archive:archive?.profile;
+   if(!legacy&&(!archive||Object.keys(archive).sort().join(',')!=='checkpoint,profile,version'||archive.version!==1))return false;
+   const probe=new CampaignProfile(null);if(!probe.importSave(JSON.stringify(profileData)))return false;
+   const checkpoint=legacy?null:archive.checkpoint;if(checkpoint!==null&&!validCheckpoint(checkpoint,probe))return false;
+   this.profile.importSave(JSON.stringify(profileData));this.reset();this.runActive=false;this.completedMissions=[];this.missionId='training';this.quick=false;this._checkpoint=checkpoint;
+   if(checkpoint){restoreCheckpoint(this,checkpoint);resetWorld(this)}this.persistCheckpoint();return true;
+  }catch{return false}
+ }
+ clearArchive(){this.endCurrentRun();this.profile.reset();return true}
  spawnEnemy(type,x,y,extra={}){
   const e=super.spawnEnemy(type,x,y,extra);if(!e)return e;
   const boss=type===4||type===6;
@@ -30,17 +79,24 @@ export class MissionRun extends DualRun{
  }
  settleMission(){
   if(this.missionSettled||!['won','dead'].includes(this.state))return;
-  this.missionSettled=true;if(this.isEquipmentTest){this.missionOutcome='equipmentTest';return}
-  if(this.state==='dead'||this.hp<=0){this.state='dead';this.missionOutcome='lost';return}
+  this.missionSettled=true;
+  if(this.isEquipmentTest){this.missionOutcome='equipmentTest';this.runActive=false;this._checkpoint=null;this.persistCheckpoint();return}
+  if(this.state==='dead'||this.hp<=0){this.state='dead';this.missionOutcome='lost';this.sampleRecovered=false;this.runActive=false;this._checkpoint=null;this.persistCheckpoint();return}
+  if(this.missionId!=='core'){
+   // The last guardian ends combat immediately; recover only equipment, as at other wave ends.
+   this.state='playing';for(const d of this.drops)if(['gun','equipment'].includes(d.kind)&&!d.collected)this.collect(d);this.state='won';this.drops=[];
+  }
   this.missionOutcome=this.profile.complete(this.missionId,{sample:this.sampleRecovered});
   if(this.missionOutcome==='finalFailure'){this.state='dead';this.events=this.events.filter(e=>e!=='victory');this.events.push('finalFailure')}
+  if(['trueEnding','finalFailure'].includes(this.missionOutcome)){this.runActive=false;this._checkpoint=null;this.persistCheckpoint()}
+  else{if(!this.completedMissions.includes(this.missionId))this.completedMissions.push(this.missionId);this.saveCheckpoint()}
  }
  hit(enemy,damage,burn=false){super.hit(enemy,damage,burn);if(this.state==='won')this.settleMission()}
  endWave(){
   if(this.missionSettled||this.state!=='playing'||this.hp<=0)return;
   const clue=this.wave===5?this.mission.clue:null;
   super.endWave();
-  if(clue&&this.profile.discover(clue.id))this.events.push('clueFound');
+  if(clue&&!this.isEquipmentTest&&this.profile.discover(clue.id))this.events.push('clueFound');
   this.settleMission();
  }
  step(dt,input={}){
