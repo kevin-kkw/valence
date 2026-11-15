@@ -11,7 +11,7 @@ if out.exists() and any(out.iterdir()):
 (out/'assets').mkdir(parents=True,exist_ok=True)
 modules={};visiting=set();files={}
 def emit(name,content):
-    data=content.encode();(out/name).write_bytes(data)
+    data=content if isinstance(content,bytes) else content.encode();(out/name).write_bytes(data)
     files[name]=hashlib.sha256(data).hexdigest()
 def module(name):
     if name in modules:return modules[name]
@@ -23,9 +23,18 @@ def module(name):
     emit('assets/'+filename,source);modules[name]=filename;visiting.remove(name)
     return filename
 entry=module('app.mjs')
-css=(root/'style.css').read_text();cssname='style.'+hashlib.sha256(css.encode()).hexdigest()[:12]+'.css';emit('assets/'+cssname,css)
+assets={}
+def css_asset(match):
+    name=match.group(2)
+    if name not in assets:
+        path=(root/name).resolve()
+        if not path.is_relative_to(root.resolve()):raise ValueError('Asset outside dist: '+str(path))
+        data=path.read_bytes();filename=path.stem+'.'+hashlib.sha256(data).hexdigest()[:12]+path.suffix
+        emit('assets/'+filename,data);assets[name]=filename
+    return 'url("./'+assets[name]+'")'
+css=re.sub(r"url\(\s*(['\"]?)(assets/[^)'\"]+)\1\s*\)",css_asset,(root/'style.css').read_text());cssname='style.'+hashlib.sha256(css.encode()).hexdigest()[:12]+'.css';emit('assets/'+cssname,css)
 html=(root/'index.html').read_text().replace('href="style.css"','href="assets/'+cssname+'"').replace('src="app.mjs"','src="assets/'+entry+'"').replace('本地 V','V')
-version=re.search(r'V(\d+\.\d+)',html).group(1)
+version=re.search(r'V(\d+(?:\.\d+)+)',html).group(1)
 html=html.replace('</head>','<meta name="valence-version" content="'+version+'"></head>')
 emit('index.html',html)
 manifest={'game':'VALENCE','version':version,'source_repository':'https://github.com/kevin-kkw/valence','source_commit':args.source_commit,'entry':'index.html','files':files}

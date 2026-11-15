@@ -6,7 +6,7 @@ globalThis.document={getElementById:element,activeElement:null,hidden:false,addE
 globalThis.window={addEventListener(n,f){events.set(`window:${n}`,f)}};globalThis.requestAnimationFrame=f=>frames.push(f);globalThis.devicePixelRatio=1;
 const {run}=await import('../dist/app.mjs');
 let clock=performance.now();function tick(){clock+=40;frames.shift()(clock)}
-function click(id){assert.equal(element(id).disabled,false,id);assert.equal(typeof element(id).onclick,'function',id);element(id).onclick()}
+function click(id){assert.equal(element(id).disabled,false,id);assert.equal(typeof element(id).onclick,'function',id);element(id).onclick();if(['start','startQuick','restart'].includes(id)&&run.state==='character'){element('character-daqi').onclick();element('confirmCharacter').onclick()}}
 function emit(id,type,event){events.get(`${id}:${type}`)(event)}
 assert.match(element('screenCard').innerHTML,/普通枪/);assert.doesNotMatch(element('screenCard').innerHTML,/data-start-gun/);
 click('dropMode');click('start');assert.equal(run.lab.gun.type,'normal');assert.equal(run.state,'playing');run.spawn=999;tick();click('pause');click('resume');assert.equal(run.state,'playing');click('openLog');assert.equal(run.state,'paused');click('cancelDialog');assert.equal(run.state,'playing');

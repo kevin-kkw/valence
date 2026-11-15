@@ -11,7 +11,7 @@ try{
  const pause=ms=>new Promise(r=>setTimeout(r,ms));
  const load=async()=>{await pause(1000);await evalJS(`(async()=>{const m=await import(document.querySelector('script[type=module]').src);globalThis.__campaignApp=m})()`)};
  const check=async(c,label)=>{if(!await evalJS(c))throw Error(label)};
- const click=async id=>{await evalJS(`{const b=document.getElementById('${id}');if(!b||b.disabled)throw Error('Unavailable ${id}');b.click()}`);await pause(80)};
+ const click=async id=>{await evalJS(`{const b=document.getElementById('${id}');if(!b||b.disabled)throw Error('Unavailable ${id}');b.click();if(['start','startQuick','restart'].includes('${id}')&&document.querySelector('#character-daqi')){document.querySelector('#character-daqi').click();document.querySelector('#confirmCharacter').click()}}`);await pause(80)};
  const snap=async name=>{if(!screenshotDir)return;await mkdir(screenshotDir,{recursive:true});const s=await call('Page.captureScreenshot',{format:'png'});await writeFile(screenshotDir+'/'+name+'.png',Buffer.from(s.data,'base64'))};
  await load();await evalJS(`__campaignApp.run.clearArchive()`);await call('Page.reload');await load();
  await check(`!document.querySelector('#mission-core')`,'Core initially hidden');await check(`document.querySelector('#start').classList.contains('primary')&&!document.querySelector('.debug-tools').open&&document.querySelector('#startQuick').closest('details')`,'Standard primary and folded debugging');await click('startQuick');

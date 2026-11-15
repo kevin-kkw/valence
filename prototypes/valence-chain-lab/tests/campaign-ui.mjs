@@ -6,7 +6,7 @@ globalThis.document={getElementById:element,activeElement:null,hidden:false,addE
 globalThis.window={addEventListener(n,f){events.set(`window:${n}`,f)}};globalThis.requestAnimationFrame=f=>frames.push(f);globalThis.devicePixelRatio=1;
 const {run}=await import('../dist/app.mjs');
 let clock=performance.now();function tick(){clock+=40;frames.shift()(clock)}
-function click(id){assert.equal(element(id).disabled,false,id);assert.equal(typeof element(id).onclick,'function',id);element(id).onclick()}
+function click(id){assert.equal(element(id).disabled,false,id);assert.equal(typeof element(id).onclick,'function',id);element(id).onclick();if(['start','startQuick','restart'].includes(id)&&run.state==='character'){element('character-daqi').onclick();element('confirmCharacter').onclick()}}
 click('equipmentTest');element('testWave').value='7';
 for(const [i,type]of ['flame','water'].entries()){element('testGun'+i).value=type;element('testGunLevel'+i).value='4';element('testRank'+i).value='10'}
 element('testAccessory0').value='condenser';element('testAccessory1').value='heat';element('testAccessory2').value='conductive';element('testAccessory3').value='freeze';element('testMuzzle0').value='fork';element('testMuzzle1').value='rapid';click('launchTest');assert.equal(run.wave,7);assert.equal(run.weapons[1].gun.rank,10);assert.equal(run.weapons[0].muzzle,'fork');assert.equal(run.weapons[1].muzzle,'rapid');assert.match(element('equipmentSlots').innerHTML,/熔火龙息/);assert.match(element('equipmentSlots').innerHTML,/脉冲水炮/);assert.match(element('equipmentSlots').innerHTML,/gearMeter1_1/);

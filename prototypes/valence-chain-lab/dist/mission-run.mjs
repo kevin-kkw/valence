@@ -5,6 +5,7 @@ import {WAVE_SECONDS} from './campaign.mjs';
 import {CampaignProfile,MISSIONS} from './progression.mjs';
 import {resetWorld,updateWorld} from './worlds.mjs';
 import {captureBuild,restoreBuild,captureCheckpoint,validCheckpoint,restoreCheckpoint} from './run-checkpoint.mjs';
+import {CHARACTERS,DEFAULT_CHARACTER,isCharacterId} from './characters.mjs';
 export const QUICK_SECONDS=[8,9,10,11,12,12,12,12,12,16];
 export class MissionRun extends DualRun{
  constructor(random=Math.random,profile=new CampaignProfile()){
@@ -13,7 +14,8 @@ export class MissionRun extends DualRun{
  }
  get checkpointKey(){return this.profile.key+'.run.v1'}
  // Run's constructor calls reset dynamically: keep profile/world work in start methods.
- reset(){super.reset();this.sampleRecovered=false;this.coreRecovered=false;this.coreDefeated=false;this.coreBossId=null;this.missionOutcome=null;this.missionSettled=false;this.returningToBase=false;this.isEquipmentTest=false}
+ reset(){super.reset();this.characterId=null;this.selectionQuick=false;this.sampleRecovered=false;this.coreRecovered=false;this.coreDefeated=false;this.coreBossId=null;this.missionOutcome=null;this.missionSettled=false;this.returningToBase=false;this.isEquipmentTest=false}
+ get character(){return isCharacterId(this.characterId)?CHARACTERS[this.characterId]:null}
  get mission(){return MISSIONS[this.missionId]||MISSIONS.training}
  get duration(){if(this.missionId==='core')return Infinity;return this.quick?QUICK_SECONDS[this.wave-1]:super.duration}
  get attackMultiplier(){return this.missionId==='training'&&this.quick?100:1}
@@ -23,11 +25,19 @@ export class MissionRun extends DualRun{
   return this.runActive&&this.state==='menu'&&this.completedMissions.includes('training')&&!this.completedMissions.includes(id)&&this.profile.unlocked(id)&&!this.intermissionActive&&!this.pendingLoot.length&&!this.pendingGun&&!this.pendingAbilityCount;
  }
  start(gun='normal'){return this.startNewRun({quick:!!this.quick,gun})}
- startNewRun({quick=false,gun='normal'}={}){
-  if(this.runActive||(gun!=='normal'&&!Object.hasOwn(RECIPES,gun)))return false;
+ beginCharacterSelection({quick=false}={}){
+  if(this.runActive)return false;
+  this.endCurrentRun();this.state='character';this.selectionQuick=!!quick;return true;
+ }
+ cancelCharacterSelection(){
+  if(this.runActive||this.state!=='character')return false;
+  this.state='menu';this.selectionQuick=false;return true;
+ }
+ startNewRun({quick=false,gun='normal',characterId=DEFAULT_CHARACTER}={}){
+  if(this.runActive||!isCharacterId(characterId)||(gun!=='normal'&&!Object.hasOwn(RECIPES,gun)))return false;
   this._checkpoint=null;this.persistCheckpoint();
   if(!super.start(gun))return false;
-  this.runActive=true;this.completedMissions=[];this.configureAct('training',quick);return true;
+  this.characterId=characterId;this.runActive=true;this.completedMissions=[];this.configureAct('training',quick);return true;
  }
  configureAct(id,quick){
   this.missionId=id;this.quick=!!quick;this.isEquipmentTest=false;
@@ -38,8 +48,8 @@ export class MissionRun extends DualRun{
    const boss=this.spawnEnemy(6,600,240,{special:true,hp:6000,maxHp:6000,damage:34});this.coreBossId=boss.id;this.specialId=boss.id;
   }
  }
- startMission(id,{quick=false,gun='normal'}={}){
-  if(id==='training')return this.startNewRun({quick,gun});
+ startMission(id,{quick=false,gun='normal',characterId=DEFAULT_CHARACTER}={}){
+  if(id==='training')return this.startNewRun({quick,gun,characterId});
   if(!this.canTravel(id))return false;
   this.saveCheckpoint();const build=captureBuild(this);this.reset();restoreBuild(this,build);this.hp=this.abilities.maxHp;this.state='playing';this.configureAct(id,quick);return true;
  }
@@ -128,6 +138,7 @@ export class MissionRun extends DualRun{
   this.settleMission();
  }
  step(dt,input={}){
+  if(this.state==='character')return;
   if(this.missionId==='core'&&this.coreDefeated&&this.state==='playing'){
    if(this.hp<=0){this.state='dead';this.settleMission();return}
    this.events=[];const elapsed=Math.min(.1,Math.max(0,dt)),x=input.x||0,y=input.y||0,n=Math.max(1,Math.hypot(x,y));this.elapsed+=elapsed;
