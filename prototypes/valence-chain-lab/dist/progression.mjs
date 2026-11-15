@@ -4,7 +4,7 @@ export const MISSIONS={
  industrial:{id:'industrial',name:'化学工业城',subtitle:'外勤 · 恢复停机装置',description:'穿过排放管网，在定向泄漏中稳定失控设备。',color:'#e8b375',relic:{id:'ceramic-shell',name:'陶瓷隔离壳',description:'从恢复安全的反应装置中回收的独立封装部件。'},clue:{id:'isolated-encapsulation',title:'独立封装记录',text:'装置记录显示：异常沿相连部件扩散时，独立封装内的对照材料仍保持原状。隔离壳外侧有损伤，内侧检测没有变化。'},bossName:'工业失控反应装置'},
  mine:{id:'mine',name:'异质矿区',subtitle:'外勤 · 调查矿源异常',description:'避开裂开的晶簇与碎晶冲击，回收矿层中的采样设备。',color:'#af9eea',relic:{id:'conductive-crystal',name:'导电晶核',description:'从晶冠内部回收的传导组件，表面留着中断的连接纹路。'},clue:{id:'disconnected-network',title:'断开的传导纹路',text:'这片矿层的异常痕迹沿导电网络连续分布；脱离网络的碎片却保留了原有结构。记录中的差异，与晶体大小无关。'},bossName:'矿脉晶冠'},
  ecology:{id:'ecology',name:'封闭生态基地',subtitle:'外勤 · 恢复循环平衡',description:'在迁移的胶体覆盖中保持走位，清理被占据的循环核心。',color:'#93c9a0',relic:{id:'steady-capsule',name:'稳态胶囊',description:'从循环核心带回的稳态组件，保留了独立支路的历史记录。'},clue:{id:'stopped-branch',title:'停用支路的留样',text:'主循环的留样陆续发生异常。一条早已停用、与主循环隔开的支路中，原始样本仍完整保存。维护记录没有写下进一步的解释。'},bossName:'循环母体'},
- core:{id:'core',name:'微观核心',subtitle:'失联信号 · 内部修复',description:'三件遗物组成的维护钥匙激活了新的任务入口。进入材料内部，追踪实验助理最后的信号。',color:'#e9a0b8',relic:null,clue:null,bossName:'失联的实验助理'}
+ core:{id:'core',name:'微观核心',subtitle:'最终决战 · AI 核心修复',description:'三件遗物组成的维护钥匙激活了新的任务入口。进入后立即挑战被侵染的 AI。无时间限制，击败首领并回收核心，完成修复。',color:'#e9a0b8',relic:null,clue:null,bossName:'失联的实验助理'}
 };
 const empty=()=>({version:1,training:false,relics:[],clues:[],trueEnding:false,attempts:0});
 const relicIds=Object.values(MISSIONS).flatMap(m=>m.relic?[m.relic.id]:[]),clueIds=Object.values(MISSIONS).flatMap(m=>m.clue?[m.clue.id]:[]);

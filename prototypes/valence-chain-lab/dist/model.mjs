@@ -84,7 +84,8 @@ export class Run{
  firePrimary(stats,targets,preferredTarget=null,bounds=ARENA_BOUNDS){
   if(this.shot<=0&&targets.length){
    const target=preferredTarget||targets.reduce((a,b)=>Math.hypot(a.x-this.x,a.y-this.y)<Math.hypot(b.x-this.x,b.y-this.y)?a:b);this.angle=Math.atan2(target.y-this.y,target.x-this.x);const type=this.lab.gun.type;
-   for(const fireAngle of (!this.legacy&&this.muzzle==='fork'?[this.angle-.22,this.angle+.22]:[this.angle])){
+   // Water must retain its aimed stream: symmetric forks otherwise leave the target in a blind spot.
+   for(const fireAngle of (!this.legacy&&this.muzzle==='fork'?(type==='water'?[this.angle,this.angle+.22]:[this.angle-.22,this.angle+.22]):[this.angle])){
    if(type==='flame'||type==='gas'){
     const duration=type==='gas'?.32:Math.min(.45,Math.max(.2,stats.interval*1.1));this.weaponEffects.push({type,visual:'cone',x:this.x,y:this.y,originX:this.x,originY:this.y,angle:fireAngle,length:stats.range,halfAngle:stats.halfAngle,life:duration,duration,born:this.elapsed});this.weaponEffects=this.weaponEffects.slice(-32);
     for(const e of [...targets]){const angle=Math.atan2(e.y-this.y,e.x-this.x),diff=Math.abs(Math.atan2(Math.sin(angle-fireAngle),Math.cos(angle-fireAngle)));if(diff>stats.halfAngle)continue;const critical=stats.crit>0&&this.random()<stats.crit;this.hit(e,stats.damage*(critical?2:1));if(e.hp>0&&type==='flame'){e.burn=stats.burnTime;e.burnDps=stats.burnDps;this.burnHits++}if(e.hp>0&&type==='gas'){const d=Math.hypot(e.x-this.x,e.y-this.y)||1,push=stats.knockback*(e.type===4||e.type===6?.2:1);e.x=Math.max(ARENA_BOUNDS.left+e.r,Math.min(ARENA_BOUNDS.right-e.r,e.x+(e.x-this.x)/d*push));e.y=Math.max(ARENA_BOUNDS.top+e.r,Math.min(ARENA_BOUNDS.bottom-e.r,e.y+(e.y-this.y)/d*push))}this.burst(e.x,e.y,type==='gas'?'#d4eef1':'#bed9ff',5)}

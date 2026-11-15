@@ -12,9 +12,9 @@ export class MissionRun extends DualRun{
  }
  get checkpointKey(){return this.profile.key+'.run.v1'}
  // Run's constructor calls reset dynamically: keep profile/world work in start methods.
- reset(){super.reset();this.sampleRecovered=false;this.missionOutcome=null;this.missionSettled=false;this.returningToBase=false;this.isEquipmentTest=false}
+ reset(){super.reset();this.sampleRecovered=false;this.coreRecovered=false;this.coreDefeated=false;this.coreBossId=null;this.missionOutcome=null;this.missionSettled=false;this.returningToBase=false;this.isEquipmentTest=false}
  get mission(){return MISSIONS[this.missionId]||MISSIONS.training}
- get duration(){return this.quick?QUICK_SECONDS[this.wave-1]:super.duration}
+ get duration(){if(this.missionId==='core')return Infinity;return this.quick?QUICK_SECONDS[this.wave-1]:super.duration}
  get attackMultiplier(){return this.missionId==='training'&&this.quick?100:1}
  get stats(){const stats=super.stats;return {...stats,damage:stats.damage*this.attackMultiplier,burnDps:stats.burnDps*this.attackMultiplier}}
  canTravel(id){
@@ -32,11 +32,15 @@ export class MissionRun extends DualRun{
   this.missionId=id;this.quick=!!quick;this.isEquipmentTest=false;
   this.guaranteedGunTimes=Object.fromEntries([1,3].map(w=>[w,(this.quick?QUICK_SECONDS[w-1]:WAVE_SECONDS[w-1])*(.5+Math.min(.999999,Math.max(0,this.random()))*.35)]));
   resetWorld(this);
+  if(id==='core'){
+   this.wave=10;this.spawn=Infinity;this.specialSpawned=true;this.recurringEliteSpawned=true;
+   const boss=this.spawnEnemy(6,600,240,{special:true,hp:6000,maxHp:6000,damage:34});this.coreBossId=boss.id;this.specialId=boss.id;
+  }
  }
  startMission(id,{quick=false,gun='normal'}={}){
   if(id==='training')return this.startNewRun({quick,gun});
   if(!this.canTravel(id))return false;
-  this.saveCheckpoint();const build=captureBuild(this);this.reset();restoreBuild(this,build);this.state='playing';this.configureAct(id,quick);return true;
+  this.saveCheckpoint();const build=captureBuild(this);this.reset();restoreBuild(this,build);this.hp=this.abilities.maxHp;this.state='playing';this.configureAct(id,quick);return true;
  }
  persistCheckpoint(){
   if(!this.profile.storage){this.sessionStorageAvailable=false;return}
@@ -79,6 +83,7 @@ export class MissionRun extends DualRun{
  }
  settleMission(){
   if(this.missionSettled||!['won','dead'].includes(this.state))return;
+  if(this.missionId==='core'&&this.state==='won'&&this.hp>0&&!this.coreRecovered)return;
   this.missionSettled=true;
   if(this.isEquipmentTest){this.missionOutcome='equipmentTest';this.runActive=false;this._checkpoint=null;this.persistCheckpoint();return}
   if(this.state==='dead'||this.hp<=0){this.state='dead';this.missionOutcome='lost';this.sampleRecovered=false;this.runActive=false;this._checkpoint=null;this.persistCheckpoint();return}
@@ -86,21 +91,48 @@ export class MissionRun extends DualRun{
    // The last guardian ends combat immediately; recover only equipment, as at other wave ends.
    this.state='playing';for(const d of this.drops)if(['gun','equipment'].includes(d.kind)&&!d.collected)this.collect(d);this.state='won';this.drops=[];
   }
-  this.missionOutcome=this.profile.complete(this.missionId,{sample:this.sampleRecovered});
+  this.missionOutcome=this.profile.complete(this.missionId,{sample:this.coreRecovered});
   if(this.missionOutcome==='finalFailure'){this.state='dead';this.events=this.events.filter(e=>e!=='victory');this.events.push('finalFailure')}
   if(['trueEnding','finalFailure'].includes(this.missionOutcome)){this.runActive=false;this._checkpoint=null;this.persistCheckpoint()}
   else{if(!this.completedMissions.includes(this.missionId))this.completedMissions.push(this.missionId);this.saveCheckpoint()}
  }
- hit(enemy,damage,burn=false){super.hit(enemy,damage,burn);if(this.state==='won')this.settleMission()}
+ hit(enemy,damage,burn=false){
+  const wasAlive=enemy.hp>0;super.hit(enemy,damage,burn);
+  if(this.missionId==='core'&&enemy.id===this.coreBossId&&wasAlive&&enemy.hp<=0){
+   if(this.hp<=0){this.state='dead';this.settleMission();return}
+   this.coreDefeated=true;this.state='playing';this.clearCoreCombat();
+   this.drops=[{kind:'aiCore',x:enemy.x,y:enemy.y,collected:false}];this.events=this.events.filter(e=>e!=='victory');this.events.push('aiCoreDropped');return;
+  }
+  if(this.state==='won')this.settleMission();
+ }
+ clearCoreCombat(){
+  this.enemies=[];this.enemyBullets=[];this.hazards=[];this.worldHazards=[];this.bullets=[];this.accessoryZones=[];this.accessoryProjectiles=[];this.evolutionZones=[];this.weaponEffects=[];this.accessoryFx=[];this.particles=[];this.texts=[];this.waterParticles=[];this.waterImpacts=[];this.waterMuzzle=null;
+  for(const w of this.weapons){w.waterParticles=[];w.waterImpacts=[];w.waterMuzzle=null;w.condenser.particles=[];w.condenser.impacts=[];w.condenser.muzzle=null}
+ }
+ hurt(damage,options={}){if(this.missionId==='core'&&this.coreDefeated&&this.hp>0)return 0;return super.hurt(damage,options)}
+ collect(drop){
+  if(drop.kind!=='aiCore')return super.collect(drop);
+  if(this.state!=='playing'||this.hp<=0||!this.coreDefeated||drop.collected||!this.drops.includes(drop)||Math.hypot(this.x-drop.x,this.y-drop.y)>=28)return false;
+  drop.collected=true;this.coreRecovered=true;this.drops=[];this.state='won';this.events.push('aiRepaired','victory');this.settleMission();return true;
+ }
+ canEndWave(){return this.missionId==='core'?false:super.canEndWave()}
+ nextWave(){return this.missionId==='core'?false:super.nextWave()}
  endWave(){
-  if(this.missionSettled||this.state!=='playing'||this.hp<=0)return;
+  if(this.missionId==='core'||this.missionSettled||this.state!=='playing'||this.hp<=0)return;
   const clue=this.wave===5?this.mission.clue:null;
   super.endWave();
   if(clue&&!this.isEquipmentTest&&this.profile.discover(clue.id))this.events.push('clueFound');
   this.settleMission();
  }
  step(dt,input={}){
+  if(this.missionId==='core'&&this.coreDefeated&&this.state==='playing'){
+   if(this.hp<=0){this.state='dead';this.settleMission();return}
+   this.events=[];const elapsed=Math.min(.1,Math.max(0,dt)),x=input.x||0,y=input.y||0,n=Math.max(1,Math.hypot(x,y));this.elapsed+=elapsed;
+   this.x=Math.max(28,Math.min(1172,this.x+x/n*this.abilities.speed*elapsed));this.y=Math.max(28,Math.min(772,this.y+y/n*this.abilities.speed*elapsed));
+   for(const drop of this.drops)this.collect(drop);return;
+  }
   super.step(dt,input);
+  if(this.missionId==='core'&&this.coreDefeated)this.clearCoreCombat();
   if(this.state==='playing'){updateWorld(this,Math.min(.1,Math.max(0,dt)));if(this.hp<=0)this.state='dead'}
   this.settleMission();
  }
