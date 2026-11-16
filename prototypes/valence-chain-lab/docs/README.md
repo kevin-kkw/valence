@@ -12,7 +12,7 @@
 | [数值总表](weapon-balance-discussion.md) | 六枪Lv1/Lv10 DPS、物质成长与+3/+6形态 |
 | [角色属性](character-abilities.md) | 九能力与属性页 |
 | [关间整备](intermission.md) | 自动收取与选择顺序 |
-| [血瓶](health-pickups.md) | 1%掉率、10HP及留场清除 |
+| [血瓶](health-pickups.md) | 2%掉率、10HP及留场清除 |
 | [音效](audio.md) | 触发、声音限制与静音 |
 | [验证](verification.md) | 已完成检查与实际限制 |
 | [发布](hugo-deployment.md) | 静态Hugo流程与线上版本记录 |
