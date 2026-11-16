@@ -253,3 +253,5 @@ html.selection-layout{overflow:auto!important}
 /* All blocking decisions share the same unclipped document flow. */
 .selection-layout #screenCard{width:100%;min-width:0;max-height:none;overflow:visible}
 @media(max-width:600px){.selection-layout #screenOverlay{padding:16px 12px}.selection-layout .ability-options{grid-template-columns:1fr}.selection-layout .ability-option p{min-height:0}}
+
+.weapon-switcher .weapon-progression,.lab-weapons .weapon-progression{display:block;margin-top:4px;font-size:9px;line-height:1.5;color:#b9d4ac;overflow-wrap:anywhere}.experiment-card .lab-gun-progress{margin:4px 0 10px;font-size:11px;line-height:1.6;color:#c6e4b2}

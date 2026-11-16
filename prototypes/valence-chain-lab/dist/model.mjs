@@ -146,7 +146,7 @@ export class Run{
   this.enemies=this.enemies.filter(e=>e.hp>0);
   this.weaponEffects=this.weaponEffects.slice(-32);
   this.updateHazards(dt);
-  this.drops=this.drops.filter(drop=>{let dx=this.x-drop.x,dy=this.y-drop.y,n=Math.hypot(dx,dy);if(drop.kind==='health'){if(n<HEALTH_PICKUP.radius&&this.hp>0&&this.hp<this.abilities.maxHp&&this.state==='playing')this.collect(drop);return !drop.collected}if(['equipment','gun'].includes(drop.kind)){if(n<28&&this.state==='playing')this.collect(drop);return !drop.collected}if(n<this.abilities.magnet){let s=Math.min(n,460*dt);drop.x+=dx/(n||1)*s;drop.y+=dy/(n||1)*s}if(n<24){this.collect(drop);return false}return true});
+  this.drops=this.drops.filter(drop=>{let dx=this.x-drop.x,dy=this.y-drop.y,n=Math.hypot(dx,dy);if(drop.kind==='health'&&(drop.collected||this.hp<=0||this.hp>=this.abilities.maxHp||this.state!=='playing'))return !drop.collected;if(['equipment','gun'].includes(drop.kind)){if(n<28&&this.state==='playing')this.collect(drop);return !drop.collected}if(n<this.abilities.magnet){let s=Math.min(n,460*dt);drop.x+=dx/(n||1)*s;drop.y+=dy/(n||1)*s}if(n<24){this.collect(drop);return drop.kind==='health'?!drop.collected:false}return true});
   for(const p of this.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}this.particles=this.particles.filter(p=>p.life>0).slice(-350);for(const t of this.texts){t.y-=27*dt;t.life-=dt}this.texts=this.texts.filter(t=>t.life>0);this.texts=[...this.texts.filter(t=>t.kind!=='health').slice(-80),...this.texts.filter(t=>t.kind==='health').slice(-10)];if(this.hp<=0)this.state='dead';else if(this.state!=='reward')this.checkUpgrade();
  }
 }
